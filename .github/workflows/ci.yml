@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate manifest.json
+        run: |
+          python3 -c "
+          import json, sys
+          with open('manifest.json') as f:
+              m = json.load(f)
+          assert m.get('manifest_version') == 3, 'manifest_version must be 3'
+          for key in ('name', 'version', 'description'):
+              assert key in m, f'missing required key: {key}'
+          print('manifest.json OK')
+          "
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install web-ext
+        run: npm install -g web-ext
+
+      - name: Lint with web-ext
+        run: web-ext lint --source-dir . --ignore-files '.github/**' 'README.md' 'LICENSE'

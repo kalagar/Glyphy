@@ -51,8 +51,14 @@ function buildRow(hostname, cfg, isPopular, label) {
   const tdLabel = document.createElement('td');
   tdLabel.className = 'td-label';
   if (label) {
-    tdLabel.innerHTML =
-      `<span class="site-name">${label}</span><span class="site-host">${hostname}</span>`;
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'site-name';
+    nameSpan.textContent = label;
+    const hostSpan = document.createElement('span');
+    hostSpan.className = 'site-host';
+    hostSpan.textContent = hostname;
+    tdLabel.appendChild(nameSpan);
+    tdLabel.appendChild(hostSpan);
   } else {
     tdLabel.textContent = hostname;
   }
