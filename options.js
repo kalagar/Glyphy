@@ -10,6 +10,14 @@ const POPULAR = [
   { label: 'Google Calendar',  hostname: 'calendar.google.com' },
   { label: 'X (Twitter)',      hostname: 'x.com' },
   { label: 'LinkedIn',         hostname: 'www.linkedin.com' },
+  { label: 'Reddit',           hostname: 'www.reddit.com' },
+  { label: 'GitHub',           hostname: 'github.com' },
+  { label: 'Twitch',           hostname: 'www.twitch.tv' },
+  { label: 'Netflix',          hostname: 'www.netflix.com' },
+  { label: 'Spotify',          hostname: 'open.spotify.com' },
+  { label: 'Notion',           hostname: 'www.notion.so' },
+  { label: 'Discord',          hostname: 'discord.com' },
+  { label: 'Medium',           hostname: 'medium.com' },
 ];
 
 const POPULAR_HOSTNAMES = new Set(POPULAR.map(p => p.hostname));
