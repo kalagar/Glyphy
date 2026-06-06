@@ -1,4 +1,4 @@
-// FontFreedom popup logic.
+// Glyphy popup logic.
 
 const domainEl = document.getElementById("domain");
 const fontEl = document.getElementById("font");

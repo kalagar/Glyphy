@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "FontFreedom",
+  "name": "Glyphy",
   "version": "1.0.0",
   "description": "Apply your favorite installed font on specific websites, configured per-domain.",
   "permissions": [
@@ -13,15 +13,15 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "FontFreedom"
+    "default_title": "Glyphy"
   },
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Alt+Shift+F",
-        "mac": "Alt+Shift+F"
+        "default": "Alt+Shift+G",
+        "mac": "Alt+Shift+G"
       },
-      "description": "Open FontFreedom popup"
+      "description": "Open Glyphy popup"
     }
   },
   "content_scripts": [
@@ -47,7 +47,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "fontchanger@kalagar.net",
+      "id": "glyphy@kalagar.net",
       "strict_min_version": "109.0"
     }
   }

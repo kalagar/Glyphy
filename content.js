@@ -1,4 +1,4 @@
-// FontFreedom content script.
+// Glyphy content script.
 // Runs at document_start on every page. Looks up the saved font for this
 // page's hostname and injects a global <style> that overrides font-family.
 

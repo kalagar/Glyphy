@@ -1,4 +1,4 @@
-# FontFreedom
+# Glyphy
 
 A Chrome extension (Manifest V3) that lets you apply any installed system font to specific websites — configured per-domain. Visit a site, pick a font, and it sticks.
 
@@ -25,14 +25,14 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 2. Open `chrome://extensions` in Chrome.
 3. Toggle **Developer mode** on (top-right corner).
 4. Click **Load unpacked** and select the project folder.
-5. The **F** icon appears in the toolbar — pin it for quick access.
+5. The **G** icon appears in the toolbar — pin it for quick access.
 
 ## Usage
 
 ### Popup
 
 1. Navigate to any website.
-2. Click the **FontFreedom** toolbar icon.
+2. Click the **Glyphy** toolbar icon.
 3. Select a font from the dropdown (your installed system fonts).
 4. Click **Save** — the page updates live and the choice is remembered for this domain.
 5. Use the **Enabled** checkbox to toggle the override on/off.
@@ -40,13 +40,13 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 
 ### Keyboard shortcut
 
-Press **Alt+Shift+F** (Windows/Linux) or **Alt+Shift+F** (Mac) to open the popup without clicking the toolbar icon.
+Press **Alt+Shift+G** (Windows/Linux) or **Alt+Shift+G** (Mac) to open the popup without clicking the toolbar icon.
 
 To customize the shortcut, go to `chrome://extensions/shortcuts`.
 
 ### Options page
 
-Click **Manage all sites** in the popup, or go to `chrome://extensions` → FontFreedom → **Extension options**.
+Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyphy → **Extension options**.
 
 - **Popular sites** section — pre-listed rows for common sites; just pick a font and save.
 - **Custom sites** section — shows any domains you've configured that aren't in the popular list.

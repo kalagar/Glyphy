@@ -1,4 +1,4 @@
-// FontFreedom options page.
+// Glyphy options page.
 
 const POPULAR = [
   { label: 'Google',           hostname: 'www.google.com' },
