@@ -141,6 +141,60 @@ function refreshCustomSection() {
   sec.hidden = document.getElementById('custom-body').children.length === 0;
 }
 
+// ── export / import ───────────────────────────────────────────────────────────
+
+function exportSettings() {
+  chrome.storage.local.get(null, (all) => {
+    if (chrome.runtime.lastError) {
+      alert('Export failed: ' + chrome.runtime.lastError.message);
+      return;
+    }
+    const json = JSON.stringify(all, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fontfreedom-settings.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+function importSettings(file) {
+  const errorEl = document.getElementById('import-error');
+  errorEl.hidden = true;
+
+  const reader = new FileReader();
+  reader.onerror = () => {
+    errorEl.textContent = 'Import failed: could not read the file.';
+    errorEl.hidden = false;
+  };
+  reader.onload = (e) => {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch (_) {
+      errorEl.textContent = 'Import failed: the file is not valid JSON.';
+      errorEl.hidden = false;
+      return;
+    }
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+      errorEl.textContent = 'Import failed: expected a JSON object.';
+      errorEl.hidden = false;
+      return;
+    }
+    chrome.storage.local.set(data, () => {
+      if (chrome.runtime.lastError) {
+        errorEl.textContent = 'Import failed: ' + chrome.runtime.lastError.message;
+        errorEl.hidden = false;
+        return;
+      }
+      location.reload();
+    });
+  };
+  reader.readAsText(file);
+}
+
 // ── init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
@@ -235,6 +289,18 @@ async function init() {
       newFontSel.value = '';
       updateAddBtn();
     });
+  });
+
+  // Export / import
+  document.getElementById('export-btn').addEventListener('click', exportSettings);
+
+  const importFile = document.getElementById('import-file');
+  document.getElementById('import-btn').addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', () => {
+    if (importFile.files.length > 0) {
+      importSettings(importFile.files[0]);
+      importFile.value = '';
+    }
   });
 }
 

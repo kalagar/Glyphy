@@ -203,3 +203,21 @@ tr.flash-removed { animation: flash-removed 0.9s ease; }
   padding: 1px 5px;
   border-radius: 4px;
 }
+
+/* ── backup form ── */
+
+.backup-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.import-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #dc2626;
+}

@@ -44,6 +44,17 @@
       </div>
       <p class="hint">Enter the hostname exactly as it appears in the URL bar (e.g. <code>www.reddit.com</code>).</p>
     </section>
+
+    <section>
+      <h2>Backup &amp; Restore</h2>
+      <div class="backup-form">
+        <button id="export-btn">Export settings</button>
+        <button id="import-btn">Import settings</button>
+        <input type="file" id="import-file" accept=".json" hidden>
+      </div>
+      <p id="import-error" class="import-error" hidden></p>
+      <p class="hint">Export saves all your font rules to a <code>.json</code> file. Import restores them from that file.</p>
+    </section>
   </main>
   <script src="options.js"></script>
 </body>
