@@ -20,7 +20,11 @@ const POPULAR = [
   { label: 'Medium',           hostname: 'medium.com' },
 ];
 
-const POPULAR_HOSTNAMES = new Set(POPULAR.map(p => p.hostname));
+const POPULAR_HOSTNAMES = new Set(
+  POPULAR.flatMap(({ hostname }) =>
+    hostname.startsWith('www.') ? [hostname, hostname.slice(4)] : [hostname, 'www.' + hostname]
+  )
+);
 
 let fonts = [];
 
