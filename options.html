@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FontFreedom - Site Rules</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>FontFreedom</h1>
+    <p class="subtitle">Configure a font for each website. Changes apply live on open tabs.</p>
+
+    <section>
+      <h2>Popular sites</h2>
+      <table id="popular-table">
+        <thead>
+          <tr><th>Site</th><th>Font</th><th>On</th><th></th></tr>
+        </thead>
+        <tbody id="popular-body"></tbody>
+      </table>
+    </section>
+
+    <section id="custom-section" hidden>
+      <h2>Custom sites</h2>
+      <table id="custom-table">
+        <thead>
+          <tr><th>Hostname</th><th>Font</th><th>On</th><th></th></tr>
+        </thead>
+        <tbody id="custom-body"></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Add custom site</h2>
+      <div class="add-form">
+        <input type="text" id="new-domain" placeholder="e.g. www.reddit.com"
+               autocomplete="off" spellcheck="false">
+        <select id="new-font"><option value="">— select font —</option></select>
+        <label class="toggle-sm">
+          <input type="checkbox" id="new-enabled" checked>
+          Enabled
+        </label>
+        <button id="add-btn" class="primary" disabled>Add</button>
+      </div>
+      <p class="hint">Enter the hostname exactly as it appears in the URL bar (e.g. <code>www.reddit.com</code>).</p>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>
