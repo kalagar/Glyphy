@@ -6,6 +6,7 @@ const enabledEl = document.getElementById("enabled");
 const saveEl = document.getElementById("save");
 const resetEl = document.getElementById("reset");
 const statusEl = document.getElementById("status");
+const activeFontEl = document.getElementById("active-font");
 
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
@@ -72,6 +73,7 @@ async function init() {
       if (cfg.font) fontEl.value = cfg.font;
       enabledEl.checked = cfg.enabled !== false;
     }
+    activeFontEl.textContent = cfg?.font ? cfg.font : "No override set";
   });
 }
 
@@ -79,7 +81,10 @@ saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
   const config = { font: fontEl.value, enabled: enabledEl.checked };
-  chrome.storage.local.set({ [key]: config }, () => setStatus("Saved."));
+  chrome.storage.local.set({ [key]: config }, () => {
+    activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
+    setStatus("Saved.");
+  });
 });
 
 resetEl.addEventListener("click", () => {
@@ -88,6 +93,7 @@ resetEl.addEventListener("click", () => {
   chrome.storage.local.remove(key, () => {
     configKey = hostname;
     enabledEl.checked = true;
+    activeFontEl.textContent = "No override set";
     setStatus("Reset.");
   });
 });
