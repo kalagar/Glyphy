@@ -3,16 +3,26 @@
   "name": "FontFreedom",
   "version": "1.0.0",
   "description": "Apply your favorite installed font on specific websites, configured per-domain.",
-  "permissions": ["storage", "fontSettings", "activeTab"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "storage",
+    "fontSettings",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "FontFreedom"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start",
       "all_frames": true
     }
@@ -28,7 +38,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "fontfreedom@kalagar.github.io",
+      "id": "fontchanger@kalagar.net",
       "strict_min_version": "109.0"
     }
   }
