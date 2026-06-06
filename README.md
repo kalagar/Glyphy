@@ -38,6 +38,12 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 5. Use the **Enabled** checkbox to toggle the override on/off.
 6. Click **Reset** to clear the site's setting entirely.
 
+### Keyboard shortcut
+
+Press **Alt+Shift+F** (Windows/Linux) or **Alt+Shift+F** (Mac) to open the popup without clicking the toolbar icon.
+
+To customize the shortcut, go to `chrome://extensions/shortcuts`.
+
 ### Options page
 
 Click **Manage all sites** in the popup, or go to `chrome://extensions` → FontFreedom → **Extension options**.
