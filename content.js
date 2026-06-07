@@ -40,8 +40,52 @@ function removeFont() {
   if (style) style.remove();
 }
 
+// RTL fix for YouTube & YouTube Studio.
+// Uses unicode-bidi: plaintext so the browser's bidi algorithm determines
+// direction from the first strong character in each element — no JS scanning needed.
+// Follows the per-site enabled toggle so disabling Glyphy also removes the RTL fix.
+const RTL_STYLE_ID = "glyphy-rtl-style";
+const RTL_HOSTS = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+const RTL_CSS = [
+  // Watch page: video comments
+  "ytd-comment-renderer yt-formatted-string",
+  "ytd-comment-renderer #content-text",
+  // Watch page: video title and description
+  "h1.ytd-video-primary-info-renderer yt-formatted-string",
+  "#description yt-formatted-string",
+  // Channel about page
+  "ytd-channel-about-metadata-renderer yt-formatted-string",
+  // YouTube Studio: title/description inputs and comment text
+  "ytcp-mention-textbox [contenteditable]",
+  "tp-yt-paper-input .input-content",
+  ".ytcp-comment-dialog-detail .ytcp-ve",
+].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
+
+function applyRtlFix() {
+  let style = document.getElementById(RTL_STYLE_ID);
+  if (!style) {
+    style = document.createElement("style");
+    style.id = RTL_STYLE_ID;
+    (document.head || document.documentElement).appendChild(style);
+  }
+  style.textContent = RTL_CSS;
+}
+
+function removeRtlFix() {
+  const style = document.getElementById(RTL_STYLE_ID);
+  if (style) style.remove();
+}
+
 function render(config) {
-  if (config && config.enabled && config.font) {
+  const enabled = !!(config && config.enabled);
+
+  if (enabled && RTL_HOSTS.has(hostname)) {
+    applyRtlFix();
+  } else {
+    removeRtlFix();
+  }
+
+  if (enabled && config.font) {
     applyFont(config.font);
   } else {
     removeFont();
