@@ -61,14 +61,23 @@ const RTL_CSS = [
   ".ytcp-comment-dialog-detail .ytcp-ve",
 ].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
 
-function applyRtlFix() {
+// General RTL fix for non-YouTube sites.
+// Targets elements explicitly marked as RTL via lang or dir attributes so
+// that Arabic, Persian, Hebrew, Urdu, and other RTL scripts render correctly.
+const GENERAL_RTL_CSS =
+  '[lang="ar"], [lang="fa"], [lang="he"], [lang="ur"], [dir="rtl"] {\n' +
+  '  unicode-bidi: plaintext !important;\n' +
+  '  text-align: start !important;\n' +
+  '}';
+
+function applyRtlFix(css) {
   let style = document.getElementById(RTL_STYLE_ID);
   if (!style) {
     style = document.createElement("style");
     style.id = RTL_STYLE_ID;
     (document.head || document.documentElement).appendChild(style);
   }
-  style.textContent = RTL_CSS;
+  style.textContent = css;
 }
 
 function removeRtlFix() {
@@ -79,8 +88,22 @@ function removeRtlFix() {
 function render(config) {
   const enabled = !!(config && config.enabled);
 
-  if (enabled && RTL_HOSTS.has(hostname)) {
-    applyRtlFix();
+  // Determine whether RTL should be active for this page:
+  //   • If cfg.rtl is explicitly set, honour it.
+  //   • Otherwise fall back to true for legacy YouTube hosts so existing users
+  //     are not affected by the addition of the per-site toggle.
+  let rtl;
+  if (!enabled) {
+    rtl = false;
+  } else if (config && 'rtl' in config) {
+    rtl = config.rtl;
+  } else {
+    rtl = RTL_HOSTS.has(hostname);
+  }
+
+  if (rtl) {
+    const css = RTL_HOSTS.has(hostname) ? RTL_CSS : GENERAL_RTL_CSS;
+    applyRtlFix(css);
   } else {
     removeRtlFix();
   }

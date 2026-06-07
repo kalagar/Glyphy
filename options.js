@@ -22,6 +22,9 @@ const POPULAR = [
 
 const POPULAR_HOSTNAMES = new Set(POPULAR.map(p => p.hostname));
 
+// Hostnames that have RTL support enabled by default (matching content.js RTL_HOSTS).
+const DEFAULT_RTL_HOSTNAMES = new Set(['www.youtube.com', 'youtube.com', 'studio.youtube.com']);
+
 let fonts = [];
 
 // ── font select helpers ───────────────────────────────────────────────────────
@@ -76,9 +79,20 @@ function buildRow(hostname, cfg, isPopular, label) {
   tdOn.className = 'td-on';
   const cb = document.createElement('input');
   cb.type = 'checkbox';
+  cb.className = 'cb-enabled';
   cb.checked = cfg ? cfg.enabled !== false : true;
   tdOn.appendChild(cb);
   tr.appendChild(tdOn);
+
+  // RTL toggle cell
+  const tdRtl = document.createElement('td');
+  tdRtl.className = 'td-rtl';
+  const rtlCb = document.createElement('input');
+  rtlCb.type = 'checkbox';
+  rtlCb.className = 'cb-rtl';
+  rtlCb.checked = cfg ? !!cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+  tdRtl.appendChild(rtlCb);
+  tr.appendChild(tdRtl);
 
   // Actions cell
   const tdAct = document.createElement('td');
@@ -106,8 +120,9 @@ function buildRow(hostname, cfg, isPopular, label) {
 function saveRow(tr, hostname, isPopular) {
   const sel = tr.querySelector('select');
   if (!sel.value) return;
-  const cb = tr.querySelector('input[type=checkbox]');
-  const config = { font: sel.value, enabled: cb.checked };
+  const enabledCb = tr.querySelector('.cb-enabled');
+  const rtlCb = tr.querySelector('.cb-rtl');
+  const config = { font: sel.value, enabled: enabledCb.checked, rtl: rtlCb.checked };
   chrome.storage.local.set({ [hostname]: config }, () => {
     tr.classList.add('configured');
     const removeBtn = tr.querySelectorAll('.td-actions button')[1];
@@ -121,7 +136,8 @@ function removeRow(tr, hostname, isPopular) {
     if (isPopular) {
       tr.classList.remove('configured');
       tr.querySelector('select').value = '';
-      tr.querySelector('input[type=checkbox]').checked = true;
+      tr.querySelector('.cb-enabled').checked = true;
+      tr.querySelector('.cb-rtl').checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
       tr.querySelectorAll('.td-actions button')[1].style.visibility = 'hidden';
       flash(tr, 'removed');
     } else {
@@ -260,7 +276,7 @@ async function init() {
       const row = popularBody.querySelector(`[data-hostname="${CSS.escape(host)}"]`);
       if (row) {
         row.querySelector('select').value = font;
-        row.querySelector('input[type=checkbox]').checked = enabled;
+        row.querySelector('.cb-enabled').checked = enabled;
         saveRow(row, host, true);
         row.scrollIntoView({ behavior: 'smooth', block: 'center' });
         newDomain.value = '';
@@ -273,7 +289,7 @@ async function init() {
     const existing = customBody.querySelector(`[data-hostname="${CSS.escape(host)}"]`);
     if (existing) {
       existing.querySelector('select').value = font;
-      existing.querySelector('input[type=checkbox]').checked = enabled;
+      existing.querySelector('.cb-enabled').checked = enabled;
       saveRow(existing, host, false);
       newDomain.value = '';
       updateAddBtn();
