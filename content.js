@@ -40,6 +40,42 @@ function removeFont() {
   if (style) style.remove();
 }
 
+// RTL fix for YouTube & YouTube Studio.
+// Uses unicode-bidi: plaintext so the browser's bidi algorithm determines
+// direction from the first strong character in each element — no JS scanning needed.
+// Follows the per-site enabled toggle so disabling Glyphy also removes the RTL fix.
+const RTL_STYLE_ID = "glyphy-rtl-style";
+const RTL_HOSTS = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+const RTL_CSS = [
+  // Watch page: video comments
+  "ytd-comment-renderer yt-formatted-string",
+  "ytd-comment-renderer #content-text",
+  // Watch page: video title and description
+  "h1.ytd-video-primary-info-renderer yt-formatted-string",
+  "#description yt-formatted-string",
+  // Channel about page
+  "ytd-channel-about-metadata-renderer yt-formatted-string",
+  // YouTube Studio: title/description inputs and comment text
+  "ytcp-mention-textbox [contenteditable]",
+  "tp-yt-paper-input .input-content",
+  ".ytcp-comment-dialog-detail .ytcp-ve",
+].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
+
+function applyRtlFix() {
+  let style = document.getElementById(RTL_STYLE_ID);
+  if (!style) {
+    style = document.createElement("style");
+    style.id = RTL_STYLE_ID;
+    (document.head || document.documentElement).appendChild(style);
+  }
+  style.textContent = RTL_CSS;
+}
+
+function removeRtlFix() {
+  const style = document.getElementById(RTL_STYLE_ID);
+  if (style) style.remove();
+}
+
 function render(config) {
   const enabled = !!(config && config.enabled);
 
@@ -68,37 +104,3 @@ chrome.storage.onChanged.addListener((changes, area) => {
   const hit = candidateKeys.find(k => Object.prototype.hasOwnProperty.call(changes, k));
   if (hit) render(changes[hit].newValue);
 });
-
-// RTL fix for YouTube & YouTube Studio.
-// Uses unicode-bidi: plaintext so the browser's bidi algorithm determines
-// direction from the first strong character in each element — no JS scanning needed.
-const RTL_STYLE_ID = "glyphy-rtl-style";
-const RTL_HOSTS = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
-const RTL_SELECTORS = [
-  // YouTube watch page: comments, video title, descriptions
-  "#content-text",
-  "#video-title",
-  "#description yt-formatted-string",
-  // YouTube Studio: title/description inputs and comment text
-  "ytcp-mention-textbox [contenteditable]",
-  "tp-yt-paper-input .input-content",
-  ".ytcp-comment-dialog-detail .ytcp-ve",
-];
-
-function applyRtlFix() {
-  let style = document.getElementById(RTL_STYLE_ID);
-  if (!style) {
-    style = document.createElement("style");
-    style.id = RTL_STYLE_ID;
-    (document.head || document.documentElement).appendChild(style);
-  }
-  style.textContent = RTL_SELECTORS.join(",\n") + " {\n" +
-    "  unicode-bidi: plaintext !important;\n" +
-    "  text-align: start !important;\n" +
-    "}";
-}
-
-function removeRtlFix() {
-  const style = document.getElementById(RTL_STYLE_ID);
-  if (style) style.remove();
-}
