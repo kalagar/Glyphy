@@ -14,7 +14,22 @@ jobs:
 
       - name: Read version from manifest
         id: version
-        run: echo "version=$(python3 -c "import json; print(json.load(open('manifest.json'))['version'])")" >> $GITHUB_OUTPUT
+        run: |
+          version=$(python3 -c "
+          import json, sys
+          try:
+              with open('manifest.json') as f:
+                  m = json.load(f)
+              version = m.get('version')
+              if not version:
+                  print('ERROR: version field missing from manifest.json', file=sys.stderr)
+                  sys.exit(1)
+              print(version)
+          except (json.JSONDecodeError, OSError) as e:
+              print(f'ERROR: could not read manifest.json: {e}', file=sys.stderr)
+              sys.exit(1)
+          ")
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Check if tag already exists
         id: tag_check
