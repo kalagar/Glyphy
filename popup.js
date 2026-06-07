@@ -3,10 +3,13 @@
 const domainEl = document.getElementById("domain");
 const fontEl = document.getElementById("font");
 const enabledEl = document.getElementById("enabled");
+const rtlEl = document.getElementById("rtl");
 const saveEl = document.getElementById("save");
 const resetEl = document.getElementById("reset");
 const statusEl = document.getElementById("status");
 const activeFontEl = document.getElementById("active-font");
+
+const DEFAULT_RTL_HOSTNAMES = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
 
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
@@ -74,6 +77,9 @@ async function init() {
     if (cfg) {
       if (cfg.font) fontEl.value = cfg.font;
       enabledEl.checked = cfg.enabled !== false;
+      rtlEl.checked = 'rtl' in cfg ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+    } else {
+      rtlEl.checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
     }
     activeFontEl.textContent = cfg?.font ? cfg.font : "No override set";
   });
@@ -82,7 +88,7 @@ async function init() {
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
-  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked };
+  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked, rtl: rtlEl.checked };
   chrome.storage.local.set({ [key]: config }, () => {
     activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
     setStatus("Saved.");
@@ -94,7 +100,9 @@ resetEl.addEventListener("click", () => {
   const key = configKey || hostname;
   chrome.storage.local.remove(key, () => {
     configKey = hostname;
+    currentCfg = {};
     enabledEl.checked = true;
+    rtlEl.checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
     activeFontEl.textContent = "No override set";
     setStatus("Reset.");
   });
