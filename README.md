@@ -12,6 +12,8 @@ A Chrome extension (Manifest V3) that lets you apply any installed system font t
 - **www-prefix fallback** — a rule saved for `google.com` also applies on `www.google.com` and vice versa
 - **Icon font protection** — glyph/icon fonts (Material Icons, Font Awesome, etc.) are excluded from the override so icons keep rendering correctly
 - **Options page** — manage all configured sites in one place; includes quick-access rows for popular sites (Google, YouTube, Gmail, LinkedIn, ChatGPT, X, and more) plus a form to add any custom domain
+- **Export / import settings** — back up all your per-domain font rules as a JSON file or restore them on another machine
+- **RTL language support** — comments, titles, and descriptions written in Arabic, Persian, Hebrew, Urdu, and other RTL scripts render right-to-left on YouTube and YouTube Studio
 
 ## Screenshots
 
@@ -40,7 +42,7 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 
 ### Keyboard shortcut
 
-Press **Alt+Shift+G** (Windows/Linux) or **Alt+Shift+G** (Mac) to open the popup without clicking the toolbar icon.
+Press **Alt+Shift+G** to open the popup without clicking the toolbar icon.
 
 To customize the shortcut, go to `chrome://extensions/shortcuts`.
 
@@ -57,9 +59,9 @@ Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyp
 | File | Role |
 | --- | --- |
 | `manifest.json` | Extension manifest (MV3), declares permissions and entry points |
-| `content.js` | Runs at `document_start` on every page; reads the saved font from `chrome.storage.local` and injects a `<style>` that sets `font-family … !important` on all elements (excluding icon-font selectors) |
-| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` and writes `{ font, enabled }` per hostname |
-| `options.js` / `options.html` | Full management page; supports popular-site quick rows and custom domain entry |
+| `content.js` | Runs at `document_start` on every page; reads the saved font from `chrome.storage.local` and injects a `<style>` that sets `font-family … !important` on all elements (excluding icon-font selectors); also injects RTL CSS (`unicode-bidi: plaintext`) on YouTube and YouTube Studio |
+| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header |
+| `options.js` / `options.html` | Full management page; supports popular-site quick rows, custom domain entry, and JSON export/import of all settings |
 | `options.css` / `popup.css` | Styles for the respective pages |
 
 The `!important` rule is required to override site-specific font declarations. If a site's icons break after enabling a font, extend the `ICON_EXCLUSIONS` selector constant in `content.js`.
