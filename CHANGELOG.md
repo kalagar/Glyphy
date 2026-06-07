@@ -9,7 +9,7 @@ All notable changes to Glyphy are documented here.
 ### Fixed
 
 - **RTL rendering on YouTube & YouTube Studio** — comments, video titles, and descriptions written in Arabic, Persian, Hebrew, Urdu, and other RTL scripts now render right-to-left. The fix injects `unicode-bidi: plaintext; text-align: start` via a scoped `<style>` tag, letting the browser's built-in bidi algorithm determine direction from the first strong character in each element — no JS text scanning required.
-  - Affected elements: `yt-formatted-string`, `#content-text`, `#video-title` (watch page), `ytcp-mention-textbox`, `tp-yt-paper-input`, `.ytcp-comment-dialog-detail` (Studio).
+  - Affected elements: `ytd-comment-renderer yt-formatted-string`, `ytd-comment-renderer #content-text`, `h1.ytd-video-primary-info-renderer yt-formatted-string`, `#description yt-formatted-string`, `ytd-channel-about-metadata-renderer yt-formatted-string`, `ytcp-mention-textbox [contenteditable]`, `tp-yt-paper-input .input-content`, `.ytcp-comment-dialog-detail .ytcp-ve`.
 
 ### Added
 
