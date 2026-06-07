@@ -103,6 +103,11 @@ tbody td {
   width: 48px;
 }
 
+.td-rtl {
+  text-align: center;
+  width: 48px;
+}
+
 .td-actions {
   text-align: right;
   white-space: nowrap;

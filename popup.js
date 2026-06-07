@@ -3,13 +3,17 @@
 const domainEl = document.getElementById("domain");
 const fontEl = document.getElementById("font");
 const enabledEl = document.getElementById("enabled");
+const rtlEl = document.getElementById("rtl");
 const saveEl = document.getElementById("save");
 const resetEl = document.getElementById("reset");
 const statusEl = document.getElementById("status");
 const activeFontEl = document.getElementById("active-font");
 
+const DEFAULT_RTL_HOSTNAMES = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
+let currentCfg = {}; // last-loaded config; preserved on save to avoid dropping unknown fields
 
 function getCandidateKeys(h) {
   return h.startsWith("www.") ? [h, h.slice(4)] : [h, "www." + h];
@@ -69,9 +73,13 @@ async function init() {
   chrome.storage.local.get(keys, (data) => {
     configKey = keys.find(k => data[k] !== undefined) || hostname;
     const cfg = data[configKey];
+    currentCfg = cfg && typeof cfg === 'object' ? cfg : {};
     if (cfg) {
       if (cfg.font) fontEl.value = cfg.font;
       enabledEl.checked = cfg.enabled !== false;
+      rtlEl.checked = typeof cfg === 'object' && Object.prototype.hasOwnProperty.call(cfg, 'rtl') ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+    } else {
+      rtlEl.checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
     }
     activeFontEl.textContent = cfg?.font ? cfg.font : "No override set";
   });
@@ -80,7 +88,7 @@ async function init() {
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
-  const config = { font: fontEl.value, enabled: enabledEl.checked };
+  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked, rtl: rtlEl.checked };
   chrome.storage.local.set({ [key]: config }, () => {
     activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
     setStatus("Saved.");
@@ -92,7 +100,9 @@ resetEl.addEventListener("click", () => {
   const key = configKey || hostname;
   chrome.storage.local.remove(key, () => {
     configKey = hostname;
+    currentCfg = {};
     enabledEl.checked = true;
+    rtlEl.checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
     activeFontEl.textContent = "No override set";
     setStatus("Reset.");
   });
