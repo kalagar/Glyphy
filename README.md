@@ -13,7 +13,7 @@ A Chrome extension (Manifest V3) that lets you apply any installed system font t
 - **Icon font protection** — glyph/icon fonts (Material Icons, Font Awesome, etc.) are excluded from the override so icons keep rendering correctly
 - **Options page** — manage all configured sites in one place; includes quick-access rows for popular sites (Google, YouTube, Gmail, LinkedIn, ChatGPT, X, and more) plus a form to add any custom domain
 - **Export / import settings** — back up all your per-domain font rules as a JSON file or restore them on another machine
-- **RTL language support** — comments, titles, and descriptions written in Arabic, Persian, Hebrew, Urdu, and other RTL scripts render right-to-left on YouTube and YouTube Studio
+- **Per-site RTL toggle** — enable RTL text support (`unicode-bidi: plaintext; text-align: start`) per site from the Options page or directly from the popup; covers Arabic, Persian, Hebrew, Urdu, and other RTL scripts with regional subtag support (e.g. `ar-SA`, `fa-IR`); YouTube and YouTube Studio default to on
 
 ## Screenshots
 
@@ -38,7 +38,8 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 3. Select a font from the dropdown (your installed system fonts).
 4. Click **Save** — the page updates live and the choice is remembered for this domain.
 5. Use the **Enabled** checkbox to toggle the override on/off.
-6. Click **Reset** to clear the site's setting entirely.
+6. Use the **RTL text support** checkbox to enable right-to-left rendering for the current site.
+7. Click **Reset** to clear the site's setting entirely.
 
 ### Keyboard shortcut
 
@@ -50,7 +51,7 @@ To customize the shortcut, go to `chrome://extensions/shortcuts`.
 
 Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyphy → **Extension options**.
 
-- **Popular sites** section — pre-listed rows for common sites; just pick a font and save.
+- **Popular sites** section — pre-listed rows for common sites; pick a font and toggle RTL support per site.
 - **Custom sites** section — shows any domains you've configured that aren't in the popular list.
 - **Add custom site** form — enter a domain (or full URL) and a font to add a new override.
 
@@ -59,7 +60,7 @@ Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyp
 | File | Role |
 | --- | --- |
 | `manifest.json` | Extension manifest (MV3), declares permissions and entry points |
-| `content.js` | Runs at `document_start` on every page; reads the saved font from `chrome.storage.local` and injects a `<style>` that sets `font-family … !important` on all elements (excluding icon-font selectors); also injects RTL CSS (`unicode-bidi: plaintext`) on YouTube and YouTube Studio |
+| `content.js` | Runs at `document_start` on every page; reads the saved font and RTL setting from `chrome.storage.local`; injects a `<style>` for the font override (excluding icon-font selectors) and, when RTL is enabled for the site, injects `unicode-bidi: plaintext; text-align: start` for elements with RTL `lang` or `dir` attributes |
 | `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header |
 | `options.js` / `options.html` | Full management page; supports popular-site quick rows, custom domain entry, and JSON export/import of all settings |
 | `options.css` / `popup.css` | Styles for the respective pages |
