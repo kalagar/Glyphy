@@ -1,62 +1,47 @@
-name: Release
+name: Release Please
 
 on:
   push:
     branches: [master]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  release:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-and-upload:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read version from manifest
-        id: version
-        run: |
-          version=$(python3 -c "
-          import json, sys
-          try:
-              with open('manifest.json') as f:
-                  m = json.load(f)
-              version = m.get('version')
-              if not version:
-                  print('ERROR: version field missing from manifest.json', file=sys.stderr)
-                  sys.exit(1)
-              print(version)
-          except (json.JSONDecodeError, OSError) as e:
-              print(f'ERROR: could not read manifest.json: {e}', file=sys.stderr)
-              sys.exit(1)
-          ")
-          printf 'version=%s\n' "$version" >> $GITHUB_OUTPUT
-
-      - name: Check if tag already exists
-        id: tag_check
-        run: |
-          tag_ref=$(git ls-remote --tags origin "refs/tags/v${{ steps.version.outputs.version }}") || exit 1
-          if [ -n "$tag_ref" ]; then
-            printf 'exists=true\n' >> $GITHUB_OUTPUT
-          else
-            printf 'exists=false\n' >> $GITHUB_OUTPUT
-          fi
-
       - uses: actions/setup-node@v4
-        if: steps.tag_check.outputs.exists == 'false'
         with:
           node-version: 20
 
       - name: Build extension zip
-        if: steps.tag_check.outputs.exists == 'false'
         run: |
           npm install -g web-ext
-          web-ext build --source-dir . --artifacts-dir dist --ignore-files '.github/**' 'README.md' 'LICENSE'
+          web-ext build --source-dir . --artifacts-dir dist \
+            --ignore-files '.github/**' 'README.md' 'LICENSE'
 
-      - name: Create Release
-        if: steps.tag_check.outputs.exists == 'false'
+      - name: Upload zip to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Glyphy v${{ steps.version.outputs.version }}
-          generate_release_notes: true
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: dist/*.zip
