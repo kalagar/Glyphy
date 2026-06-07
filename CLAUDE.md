@@ -18,7 +18,7 @@ This project is indexed by GitNexus as **Glyphy** (49 symbols, 87 relationships,
 1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
 2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
 3. `READ gitnexus://repo/Glyphy/process/{processName}` — trace the full execution flow step by step
-4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
+4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "master"})` — see what your branch changed
 
 ## When Refactoring
 
@@ -64,6 +64,7 @@ This project is indexed by GitNexus as **Glyphy** (49 symbols, 87 relationships,
 ## Self-Check Before Finishing
 
 Before completing any code modification task, verify:
+
 1. `gitnexus_impact` was run for all modified symbols
 2. No HIGH/CRITICAL risk warnings were ignored
 3. `gitnexus_detect_changes()` confirms changes match expected scope
