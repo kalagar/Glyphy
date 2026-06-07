@@ -73,11 +73,11 @@ async function init() {
   chrome.storage.local.get(keys, (data) => {
     configKey = keys.find(k => data[k] !== undefined) || hostname;
     const cfg = data[configKey];
-    currentCfg = cfg || {};
+    currentCfg = cfg && typeof cfg === 'object' ? cfg : {};
     if (cfg) {
       if (cfg.font) fontEl.value = cfg.font;
       enabledEl.checked = cfg.enabled !== false;
-      rtlEl.checked = 'rtl' in cfg ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+      rtlEl.checked = typeof cfg === 'object' && Object.prototype.hasOwnProperty.call(cfg, 'rtl') ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
     } else {
       rtlEl.checked = DEFAULT_RTL_HOSTNAMES.has(hostname);
     }

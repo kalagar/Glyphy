@@ -95,7 +95,7 @@ function render(config) {
   let rtl;
   if (!enabled) {
     rtl = false;
-  } else if (config && 'rtl' in config) {
+  } else if (config && typeof config === 'object' && Object.prototype.hasOwnProperty.call(config, 'rtl')) {
     rtl = config.rtl;
   } else {
     rtl = RTL_HOSTS.has(hostname);

@@ -90,7 +90,7 @@ function buildRow(hostname, cfg, isPopular, label) {
   const rtlCb = document.createElement('input');
   rtlCb.type = 'checkbox';
   rtlCb.className = 'cb-rtl';
-  rtlCb.checked = cfg && 'rtl' in cfg ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+  rtlCb.checked = cfg && typeof cfg === 'object' && Object.prototype.hasOwnProperty.call(cfg, 'rtl') ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
   tdRtl.appendChild(rtlCb);
   tr.appendChild(tdRtl);
 
@@ -119,7 +119,6 @@ function buildRow(hostname, cfg, isPopular, label) {
 
 function saveRow(tr, hostname, isPopular) {
   const sel = tr.querySelector('select');
-  if (!sel.value) return;
   const enabledCb = tr.querySelector('.cb-enabled');
   const rtlCb = tr.querySelector('.cb-rtl');
   const config = { font: sel.value, enabled: enabledCb.checked, rtl: rtlCb.checked };
