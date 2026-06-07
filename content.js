@@ -41,7 +41,15 @@ function removeFont() {
 }
 
 function render(config) {
-  if (config && config.enabled && config.font) {
+  const enabled = !!(config && config.enabled);
+
+  if (enabled && RTL_HOSTS.has(hostname)) {
+    applyRtlFix();
+  } else {
+    removeRtlFix();
+  }
+
+  if (enabled && config.font) {
     applyFont(config.font);
   } else {
     removeFont();
@@ -62,26 +70,35 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 // RTL fix for YouTube & YouTube Studio.
-// Uses unicode-bidi:plaintext so the browser's bidi algorithm determines
+// Uses unicode-bidi: plaintext so the browser's bidi algorithm determines
 // direction from the first strong character in each element — no JS scanning needed.
 const RTL_STYLE_ID = "glyphy-rtl-style";
 const RTL_HOSTS = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+const RTL_SELECTORS = [
+  // YouTube watch page: comments, video title, descriptions
+  "#content-text",
+  "#video-title",
+  "#description yt-formatted-string",
+  // YouTube Studio: title/description inputs and comment text
+  "ytcp-mention-textbox [contenteditable]",
+  "tp-yt-paper-input .input-content",
+  ".ytcp-comment-dialog-detail .ytcp-ve",
+];
 
-if (RTL_HOSTS.has(hostname)) {
-  const style = document.createElement("style");
-  style.id = RTL_STYLE_ID;
-  style.textContent = [
-    // YouTube watch page: comments, video title, descriptions
-    "yt-formatted-string",
-    "#content-text",
-    "#video-title",
-    // YouTube Studio: title/description inputs and comment text
-    "ytcp-mention-textbox [contenteditable]",
-    "tp-yt-paper-input .input-content",
-    ".ytcp-comment-dialog-detail .ytcp-ve",
-  ].join(",\n") + " {\n" +
+function applyRtlFix() {
+  let style = document.getElementById(RTL_STYLE_ID);
+  if (!style) {
+    style = document.createElement("style");
+    style.id = RTL_STYLE_ID;
+    (document.head || document.documentElement).appendChild(style);
+  }
+  style.textContent = RTL_SELECTORS.join(",\n") + " {\n" +
     "  unicode-bidi: plaintext !important;\n" +
     "  text-align: start !important;\n" +
     "}";
-  (document.head || document.documentElement).appendChild(style);
+}
+
+function removeRtlFix() {
+  const style = document.getElementById(RTL_STYLE_ID);
+  if (style) style.remove();
 }
