@@ -10,6 +10,7 @@ const activeFontEl = document.getElementById("active-font");
 
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
+let currentCfg = {}; // last-loaded config; preserved on save to avoid dropping unknown fields
 
 function getCandidateKeys(h) {
   return h.startsWith("www.") ? [h, h.slice(4)] : [h, "www." + h];
@@ -69,6 +70,7 @@ async function init() {
   chrome.storage.local.get(keys, (data) => {
     configKey = keys.find(k => data[k] !== undefined) || hostname;
     const cfg = data[configKey];
+    currentCfg = cfg || {};
     if (cfg) {
       if (cfg.font) fontEl.value = cfg.font;
       enabledEl.checked = cfg.enabled !== false;
@@ -80,7 +82,7 @@ async function init() {
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
-  const config = { font: fontEl.value, enabled: enabledEl.checked };
+  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked };
   chrome.storage.local.set({ [key]: config }, () => {
     activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
     setStatus("Saved.");

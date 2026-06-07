@@ -65,7 +65,7 @@ const RTL_CSS = [
 // Targets elements explicitly marked as RTL via lang or dir attributes so
 // that Arabic, Persian, Hebrew, Urdu, and other RTL scripts render correctly.
 const GENERAL_RTL_CSS =
-  '[lang="ar"], [lang="fa"], [lang="he"], [lang="ur"], [dir="rtl"] {\n' +
+  '[lang|="ar"], [lang|="fa"], [lang|="he"], [lang|="ur"], [dir="rtl"] {\n' +
   '  unicode-bidi: plaintext !important;\n' +
   '  text-align: start !important;\n' +
   '}';
@@ -86,7 +86,7 @@ function removeRtlFix() {
 }
 
 function render(config) {
-  const enabled = !!(config && config.enabled);
+  const enabled = config ? config.enabled !== false : false;
 
   // Determine whether RTL should be active for this page:
   //   • If cfg.rtl is explicitly set, honour it.

@@ -90,7 +90,7 @@ function buildRow(hostname, cfg, isPopular, label) {
   const rtlCb = document.createElement('input');
   rtlCb.type = 'checkbox';
   rtlCb.className = 'cb-rtl';
-  rtlCb.checked = cfg ? !!cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
+  rtlCb.checked = cfg && 'rtl' in cfg ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
   tdRtl.appendChild(rtlCb);
   tr.appendChild(tdRtl);
 
