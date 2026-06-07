@@ -4,6 +4,15 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [1.2.0] — copilot/feat-per-site-rtl-support-toggle → master
+
+### Added
+
+- **Per-site RTL toggle in Options page** — every site in the Popular list (and custom sites) now has an RTL checkbox. Enabling it injects `unicode-bidi: plaintext; text-align: start` for elements with `[lang|="ar/fa/he/ur"]` or `[dir="rtl"]` attributes, covering regional subtags like `ar-SA` and `fa-IR`. YouTube and YouTube Studio default to on; all other sites default to off.
+- **RTL toggle in popup** — the "RTL text support" checkbox in the popup lets you flip RTL support for the current site without opening the Options page. Defaults follow the same hostname rules as the Options page and content script.
+
+---
+
 ## [1.1.0] — fix/rtl-youtube → master
 
 ### Fixed
