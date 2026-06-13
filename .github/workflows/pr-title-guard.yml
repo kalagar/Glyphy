@@ -9,7 +9,7 @@ name: PR Title Guard
 #   feature/ feat/         -> feat        -> MINOR
 #   fix/ bug/ bugfix/       -> fix         -> PATCH
 #   hotfix/                 -> fix         -> PATCH
-#   breaking/ (or ! / BREAKING CHANGE) -> feat!/fix! -> MAJOR
+#   breaking/              -> feat! (or feat + BREAKING CHANGE footer) -> MAJOR
 #   chore/ docs/ ci/ refactor/ test/ perf/ -> matching type -> (chore/docs/ci/test: no release)
 
 on:
@@ -48,6 +48,7 @@ jobs:
           script: |
             const branch = context.payload.pull_request.head.ref;
             const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body || '';
 
             // Leading path segment of the branch name, e.g. "feature" in "feature/foo".
             const prefix = branch.split('/')[0].toLowerCase();
@@ -60,7 +61,7 @@ jobs:
               bug: 'fix',
               bugfix: 'fix',
               hotfix: 'fix',
-              breaking: 'feat',   // expressed as feat!/fix! or a BREAKING CHANGE footer
+              breaking: 'feat',   // expressed as feat! or feat + a BREAKING CHANGE footer
               chore: 'chore',
               docs: 'docs',
               ci: 'ci',
@@ -84,6 +85,11 @@ jobs:
               );
               return;
             }
+            const expectedBump = prefix === 'breaking' ? 'MAJOR' : BUMP[expected];
+            const expectedTitle =
+              prefix === 'breaking'
+                ? `"${expected}!: ..." title or a "${expected}: ..." title with a "BREAKING CHANGE:" footer`
+                : `"${expected}: ..." title`;
 
             // Parse the conventional-commit type from the title:
             //   "feat: x", "fix(scope): x", "feat!: x"
@@ -91,28 +97,31 @@ jobs:
             if (!m) {
               core.setFailed(
                 `PR title "${title}" is not a conventional commit.\n` +
-                `Branch "${branch}" needs a "${expected}: ..." title ` +
-                `(bump: ${BUMP[expected]}).`
+                `Branch "${branch}" needs a ${expectedTitle} ` +
+                `(bump: ${expectedBump}).`
               );
               return;
             }
 
             const titleType = m[1];
-            const isBreaking = m[3] === '!';
+            const titleIsBreaking = m[3] === '!';
+            const hasBreakingFooter = /^BREAKING(?: CHANGE|-CHANGE):\s+\S/m.test(body);
+            const isBreaking = titleIsBreaking || hasBreakingFooter;
 
-            // A "breaking/" branch must declare a breaking change in the title.
-            if (prefix === 'breaking' && !isBreaking) {
+            if (titleType !== expected) {
               core.setFailed(
-                `Branch "${branch}" must declare a breaking change: use ` +
-                `"${titleType}!: ..." (or a "BREAKING CHANGE:" footer) for a MAJOR bump.`
+                `Branch "${branch}" requires a ${expectedTitle} ` +
+                `(bump: ${expectedBump}); got "${titleType}${titleIsBreaking ? '!' : ''}: ...".`
               );
               return;
             }
 
-            if (titleType !== expected) {
+            // A "breaking/" branch must declare a breaking change.
+            if (prefix === 'breaking' && !isBreaking) {
               core.setFailed(
-                `Branch "${branch}" requires a "${expected}: ..." title ` +
-                `(bump: ${BUMP[expected]}); got "${titleType}: ...".`
+                `Branch "${branch}" must declare a breaking change: use ` +
+                `"${expected}!: ..." or add a "BREAKING CHANGE:" footer to the PR body ` +
+                `for a MAJOR bump.`
               );
               return;
             }

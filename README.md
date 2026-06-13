@@ -91,13 +91,14 @@ The `!important` rule is required to override site-specific font declarations. I
 Branch type and PR title together decide the semver bump. A PR Title Guard check
 enforces that they match:
 
-| Branch prefix                     | PR title      | Version bump |
-| --------------------------------- | ------------- | ------------ |
-| `feature/`, `feat/`               | `feat: …`     | MINOR        |
-| `fix/`, `bug/`, `bugfix/`         | `fix: …`      | PATCH        |
-| `hotfix/`                         | `fix: …`      | PATCH        |
-| `breaking/`                       | `feat!: …`    | MAJOR        |
-| `chore/`, `docs/`, `ci/`, `test/` | matching type | no release   |
+| Branch prefix                     | PR title        | Version bump |
+| --------------------------------- | --------------- | ------------ |
+| `feature/`, `feat/`               | `feat: …`       | MINOR        |
+| `fix/`, `bug/`, `bugfix/`         | `fix: …`        | PATCH        |
+| `hotfix/`                         | `fix: …`        | PATCH        |
+| `breaking/`                       | `feat!: …`      | MAJOR        |
+| `refactor/`, `perf/`              | matching type   | PATCH        |
+| `chore/`, `docs/`, `ci/`, `test/` | matching type   | no release   |
 
 Release Please updates `manifest.json`, `CHANGELOG.md`, the git tag, and the built
 `.zip` artifact — no manual version edits needed.
