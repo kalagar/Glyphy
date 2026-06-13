@@ -20,7 +20,8 @@ const ICON_EXCLUSIONS =
   ':not([class*="gm-"]):not(.google-symbols)' +
   ':not(.material-symbols-outlined):not(.material-symbols-rounded)' +
   ':not(.material-symbols-sharp):not(.material-symbols)' +
-  ':not([aria-hidden="true"])';
+  ':not([aria-hidden="true"])' +
+  ':not(.google-material-icons *)';
 
 function buildCss(font) {
   // Escape any embedded quotes in the font name, then wrap in quotes.
