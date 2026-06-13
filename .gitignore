@@ -16,3 +16,6 @@ build/
 node_modules/
 npm-debug.log*
 .gitnexus
+
+# Playwright MCP runtime artifacts
+.playwright-mcp/
