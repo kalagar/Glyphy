@@ -55,7 +55,7 @@ jobs:
             const branchParts = branch.toLowerCase().split('/');
             const rawPrefix = branchParts[0];
             const prefix =
-              rawPrefix === 'copilot' && branchParts[1]
+              rawPrefix === 'copilot' && branchParts[1]?.length
                 ? branchParts[1].split('-')[0]
                 : rawPrefix;
 
