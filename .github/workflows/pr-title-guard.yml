@@ -1,0 +1,121 @@
+name: PR Title Guard
+
+# Bridges branch naming -> conventional commit titles so that Release Please
+# produces the correct semver bump on merge to master. Because the repo
+# squash-merges, the PR title becomes the single commit subject that Release
+# Please reads, so validating the title here determines the version bump.
+#
+# Branch type -> required title type -> bump:
+#   feature/ feat/         -> feat        -> MINOR
+#   fix/ bug/ bugfix/       -> fix         -> PATCH
+#   hotfix/                 -> fix         -> PATCH
+#   breaking/ (or ! / BREAKING CHANGE) -> feat!/fix! -> MAJOR
+#   chore/ docs/ ci/ refactor/ test/ perf/ -> matching type -> (chore/docs/ci/test: no release)
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [master]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  guard:
+    name: Validate PR title vs branch type
+    runs-on: ubuntu-latest
+    # Never block Release Please's own release PR.
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+    steps:
+      - name: Validate conventional PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            ci
+            refactor
+            test
+            perf
+
+      - name: Branch type matches title type
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const title = context.payload.pull_request.title;
+
+            // Leading path segment of the branch name, e.g. "feature" in "feature/foo".
+            const prefix = branch.split('/')[0].toLowerCase();
+
+            // Branch prefix -> the conventional-commit type its PR title must use.
+            const PREFIX_TO_TYPE = {
+              feature: 'feat',
+              feat: 'feat',
+              fix: 'fix',
+              bug: 'fix',
+              bugfix: 'fix',
+              hotfix: 'fix',
+              breaking: 'feat',   // expressed as feat!/fix! or a BREAKING CHANGE footer
+              chore: 'chore',
+              docs: 'docs',
+              ci: 'ci',
+              refactor: 'refactor',
+              test: 'test',
+              perf: 'perf',
+            };
+
+            const BUMP = {
+              feat: 'MINOR', fix: 'PATCH', chore: 'no release',
+              docs: 'no release', ci: 'no release', refactor: 'PATCH',
+              test: 'no release', perf: 'PATCH',
+            };
+
+            const expected = PREFIX_TO_TYPE[prefix];
+            if (!expected) {
+              core.setFailed(
+                `Branch "${branch}" has an unrecognized prefix "${prefix}/".\n` +
+                `Use one of: feature/ fix/ bug/ bugfix/ hotfix/ breaking/ ` +
+                `chore/ docs/ ci/ refactor/ test/ perf/.`
+              );
+              return;
+            }
+
+            // Parse the conventional-commit type from the title:
+            //   "feat: x", "fix(scope): x", "feat!: x"
+            const m = title.match(/^([a-z]+)(\([^)]*\))?(!)?:\s/);
+            if (!m) {
+              core.setFailed(
+                `PR title "${title}" is not a conventional commit.\n` +
+                `Branch "${branch}" needs a "${expected}: ..." title ` +
+                `(bump: ${BUMP[expected]}).`
+              );
+              return;
+            }
+
+            const titleType = m[1];
+            const isBreaking = m[3] === '!';
+
+            // A "breaking/" branch must declare a breaking change in the title.
+            if (prefix === 'breaking' && !isBreaking) {
+              core.setFailed(
+                `Branch "${branch}" must declare a breaking change: use ` +
+                `"${titleType}!: ..." (or a "BREAKING CHANGE:" footer) for a MAJOR bump.`
+              );
+              return;
+            }
+
+            if (titleType !== expected) {
+              core.setFailed(
+                `Branch "${branch}" requires a "${expected}: ..." title ` +
+                `(bump: ${BUMP[expected]}); got "${titleType}: ...".`
+              );
+              return;
+            }
+
+            const bump = isBreaking ? 'MAJOR' : BUMP[expected];
+            core.info(`OK: branch "${branch}" + title "${title}" -> ${bump} bump.`);

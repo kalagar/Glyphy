@@ -78,10 +78,29 @@ The `!important` rule is required to override site-specific font declarations. I
 
 ## Contributing
 
-1. Fork the repo and create a feature branch.
+1. Fork the repo and create a branch named by **type** (this drives the version bump).
 2. Load the extension from your fork as described in [Installation](#installation).
 3. Make your changes and test across a few sites.
-4. Open a pull request with a short description of what changed and why.
+4. Open a pull request with a **conventional-commit title matching the branch type**
+   (e.g. `feat: …`). The PR title becomes the squash commit and
+   [Release Please](https://github.com/googleapis/release-please) bumps the version
+   automatically on merge to `master`.
+
+### Versioning automation
+
+Branch type and PR title together decide the semver bump. A PR Title Guard check
+enforces that they match:
+
+| Branch prefix                     | PR title      | Version bump |
+| --------------------------------- | ------------- | ------------ |
+| `feature/`, `feat/`               | `feat: …`     | MINOR        |
+| `fix/`, `bug/`, `bugfix/`         | `fix: …`      | PATCH        |
+| `hotfix/`                         | `fix: …`      | PATCH        |
+| `breaking/`                       | `feat!: …`    | MAJOR        |
+| `chore/`, `docs/`, `ci/`, `test/` | matching type | no release   |
+
+Release Please updates `manifest.json`, `CHANGELOG.md`, the git tag, and the built
+`.zip` artifact — no manual version edits needed.
 
 ## License
 
