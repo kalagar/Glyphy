@@ -16,7 +16,11 @@ const candidateKeys = getCandidateKeys(hostname);
 const ICON_EXCLUSIONS =
   ':not([class*="icon"]):not([class*="Icon"]):not(.material-icons)' +
   ':not(.material-icons-outlined):not(.fa):not(.fas):not(.far)' +
-  ':not(.fab):not(.fal):not(i):not(.glyphicon)';
+  ':not(.fab):not(.fal):not(i):not(.glyphicon)' +
+  ':not([class*="gm-"]):not(.google-symbols)' +
+  ':not(.material-symbols-outlined):not(.material-symbols-rounded)' +
+  ':not(.material-symbols-sharp):not(.material-symbols)' +
+  ':not([aria-hidden="true"])';
 
 function buildCss(font) {
   // Escape any embedded quotes in the font name, then wrap in quotes.
