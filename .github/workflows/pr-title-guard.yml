@@ -79,7 +79,7 @@ jobs:
             if (!expected) {
               core.setFailed(
                 `Branch "${branch}" has an unrecognized prefix "${prefix}/".\n` +
-                `Use one of: feature/ fix/ bug/ bugfix/ hotfix/ breaking/ ` +
+                `Use one of: feature/ feat/ fix/ bug/ bugfix/ hotfix/ breaking/ ` +
                 `chore/ docs/ ci/ refactor/ test/ perf/.`
               );
               return;
