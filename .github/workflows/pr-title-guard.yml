@@ -51,7 +51,7 @@ jobs:
             const body = context.payload.pull_request.body || '';
 
             // Leading path segment of the branch name, e.g. "feature" in "feature/foo".
-            // Copilot branches are prefixed as "copilot/<type>-..."; map to "<type>".
+            // Copilot branches are prefixed as "copilot/<type>" or "copilot/<type>-..."; map to "<type>".
             const branchParts = branch.toLowerCase().split('/');
             const rawPrefix = branchParts[0];
             const prefix =
@@ -87,7 +87,7 @@ jobs:
               core.setFailed(
                 `Branch "${branch}" has an unrecognized prefix "${prefix}/".\n` +
                 `Use one of: feature/ feat/ fix/ bug/ bugfix/ hotfix/ breaking/ ` +
-                `chore/ docs/ ci/ refactor/ test/ perf/ (or copilot/<type>-...).`
+                `chore/ docs/ ci/ refactor/ test/ perf/ (or copilot/<type>[-...]).`
               );
               return;
             }
