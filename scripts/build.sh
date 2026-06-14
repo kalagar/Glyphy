@@ -10,6 +10,11 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT_DIR"
 
 # Verify required tools are available
+if ! command -v python3 &>/dev/null; then
+  echo "Error: 'python3' is not installed. Install Python 3 (https://www.python.org/downloads/) and re-run." >&2
+  exit 1
+fi
+
 if ! command -v zip &>/dev/null; then
   echo "Error: 'zip' is not installed. Install it (e.g. 'brew install zip' on macOS or 'apt-get install zip' on Debian/Ubuntu) and re-run." >&2
   exit 1
@@ -37,7 +42,7 @@ CHROME_OUT="$OUT_DIR/glyphy-${VERSION}-chrome.zip"
 FIREFOX_OUT="$OUT_DIR/glyphy-${VERSION}-firefox.xpi"
 
 # Stage extension files in a temp directory so we have an explicit, clean set.
-TMP_DIR="$(mktemp -d)"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/glyphy.XXXXXXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Copy extension runtime files only (no dev/tooling files).

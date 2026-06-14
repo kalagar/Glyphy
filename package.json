@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Build tooling for the Glyphy browser extension",
   "scripts": {
-    "build": "node build.js && bash scripts/build.sh",
+    "build": "node build.js",
     "package": "bash scripts/build.sh",
     "watch": "node build.js --watch"
   },
