@@ -291,6 +291,7 @@
   }
   async function init() {
     fonts = await getInstalledFonts();
+    const isFallback = fonts === FALLBACK_FONTS;
     let all;
     try {
       all = await getAllConfigs();
@@ -309,23 +310,32 @@
     }
     refreshCustomSection();
     const newFontSel = document.getElementById("new-font");
+    const newFontTextEl = document.getElementById("new-font-text");
     for (const f of fonts) {
       const opt = document.createElement("option");
       opt.value = f.fontId;
       opt.textContent = f.displayName;
       newFontSel.appendChild(opt);
     }
+    if (isFallback) {
+      newFontTextEl.hidden = false;
+    }
     const newDomain = document.getElementById("new-domain");
     const addBtn = document.getElementById("add-btn");
     const updateAddBtn = () => {
-      addBtn.disabled = !newDomain.value.trim() || !newFontSel.value;
+      const fontVal = !newFontTextEl.hidden && newFontTextEl.value.trim() || newFontSel.value;
+      addBtn.disabled = !newDomain.value.trim() || !fontVal;
     };
     newDomain.addEventListener("input", updateAddBtn);
-    newFontSel.addEventListener("change", updateAddBtn);
+    newFontSel.addEventListener("change", () => {
+      newFontTextEl.value = "";
+      updateAddBtn();
+    });
+    newFontTextEl.addEventListener("input", updateAddBtn);
     addBtn.addEventListener("click", async () => {
       let host = newDomain.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-      if (!host || !newFontSel.value) return;
-      const font = newFontSel.value;
+      const font = !newFontTextEl.hidden && newFontTextEl.value.trim() || newFontSel.value;
+      if (!host || !font) return;
       const enabled = document.getElementById("new-enabled").checked;
       if (POPULAR_HOSTNAMES.has(host)) {
         const row = popularBody.querySelector(`[data-hostname="${CSS.escape(host)}"]`);
@@ -359,6 +369,7 @@
       refreshCustomSection();
       newDomain.value = "";
       newFontSel.value = "";
+      if (!newFontTextEl.hidden) newFontTextEl.value = "";
       updateAddBtn();
     });
     document.getElementById("export-btn").addEventListener("click", exportSettings);

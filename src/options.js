@@ -3,7 +3,7 @@
 
 import { DEFAULT_RTL_HOSTNAMES } from './lib/config.js';
 import { setConfig, removeConfig, getAllConfigs, setAllConfigs } from './lib/storage.js';
-import { getInstalledFonts } from './lib/fonts.js';
+import { getInstalledFonts, FALLBACK_FONTS } from './lib/fonts.js';
 
 const POPULAR = [
   { label: 'Google',           hostname: 'www.google.com' },
@@ -223,6 +223,7 @@ function importSettings(file) {
 
 async function init() {
   fonts = await getInstalledFonts();
+  const isFallback = fonts === FALLBACK_FONTS;
 
   // Load all saved configs
   let all;
@@ -249,6 +250,7 @@ async function init() {
 
   // Populate "Add custom" font select
   const newFontSel = document.getElementById('new-font');
+  const newFontTextEl = document.getElementById('new-font-text');
   for (const f of fonts) {
     const opt = document.createElement('option');
     opt.value = f.fontId;
@@ -256,22 +258,31 @@ async function init() {
     newFontSel.appendChild(opt);
   }
 
+  // In fallback mode (Safari/Firefox), reveal the free-text input so the user
+  // can type any installed font name not in the curated list.
+  if (isFallback) {
+    newFontTextEl.hidden = false;
+  }
+
   // Enable Add button only when both domain and font are filled
   const newDomain = document.getElementById('new-domain');
   const addBtn = document.getElementById('add-btn');
   const updateAddBtn = () => {
-    addBtn.disabled = !newDomain.value.trim() || !newFontSel.value;
+    const fontVal = (!newFontTextEl.hidden && newFontTextEl.value.trim()) || newFontSel.value;
+    addBtn.disabled = !newDomain.value.trim() || !fontVal;
   };
   newDomain.addEventListener('input', updateAddBtn);
-  newFontSel.addEventListener('change', updateAddBtn);
+  newFontSel.addEventListener('change', () => { newFontTextEl.value = ''; updateAddBtn(); });
+  newFontTextEl.addEventListener('input', updateAddBtn);
 
   addBtn.addEventListener('click', async () => {
     // Strip protocol + path, normalise to lowercase
     let host = newDomain.value.trim().toLowerCase()
       .replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-    if (!host || !newFontSel.value) return;
+    // In fallback mode (Safari/Firefox) prefer the free-text input when set.
+    const font = (!newFontTextEl.hidden && newFontTextEl.value.trim()) || newFontSel.value;
+    if (!host || !font) return;
 
-    const font = newFontSel.value;
     const enabled = document.getElementById('new-enabled').checked;
 
     // If it's a popular site, update that row instead of creating a custom one
@@ -311,6 +322,7 @@ async function init() {
     refreshCustomSection();
     newDomain.value = '';
     newFontSel.value = '';
+    if (!newFontTextEl.hidden) newFontTextEl.value = '';
     updateAddBtn();
   });
 
