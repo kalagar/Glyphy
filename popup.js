@@ -109,6 +109,12 @@ async function init() {
   });
 }
 
+// In fallback mode, clear the free-text input when the user picks a curated
+// font from the dropdown so the selection reliably takes effect on save.
+fontEl.addEventListener("change", () => {
+  if (!fontTextEl.hidden) fontTextEl.value = "";
+});
+
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
