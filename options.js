@@ -327,7 +327,10 @@
       addBtn.disabled = !newDomain.value.trim() || !fontVal;
     };
     newDomain.addEventListener("input", updateAddBtn);
-    newFontSel.addEventListener("change", updateAddBtn);
+    newFontSel.addEventListener("change", () => {
+      newFontTextEl.value = "";
+      updateAddBtn();
+    });
     newFontTextEl.addEventListener("input", updateAddBtn);
     addBtn.addEventListener("click", async () => {
       let host = newDomain.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
