@@ -41,7 +41,7 @@ Edge is Chromium-based and runs the extension natively — no code changes neede
 
 > **Note:** Edge supports `chrome.fontSettings.getFontList()`, so the system-font dropdown works exactly as in Chrome.
 
-> **Distribution:** Glyphy is not currently published to any extension store. Install it as an unpacked extension using the steps above. Because Edge is Chromium-based, extensions installed from the Chrome Web Store (for other extensions that are listed there) also work in Edge.
+> **Distribution:** Glyphy is not currently published to any extension store. Install it as an unpacked extension using the steps above.
 
 ### Firefox
 
