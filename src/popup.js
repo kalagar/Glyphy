@@ -2,7 +2,7 @@
 // Wires DOM elements to storage; all business logic lives in src/lib/.
 
 import { DEFAULT_RTL_HOSTNAMES } from './lib/config.js';
-import { getCandidateKeys, getConfig, setConfig, removeConfig } from './lib/storage.js';
+import { getConfig, setConfig, removeConfig } from './lib/storage.js';
 import { getInstalledFonts, FALLBACK_FONTS } from './lib/fonts.js';
 
 const domainEl    = document.getElementById('domain');
@@ -70,7 +70,14 @@ async function init() {
   await loadFontList();
 
   // Load config — try exact hostname first, then www-prefix variant.
-  const { cfg, key } = await getConfig(hostname);
+  let cfg, key;
+  try {
+    ({ cfg, key } = await getConfig(hostname));
+  } catch (err) {
+    cfg = null;
+    key = hostname;
+    setStatus('Failed to load settings.');
+  }
   configKey = key;
   currentCfg = cfg && typeof cfg === 'object' ? cfg : {};
 
@@ -106,7 +113,12 @@ saveEl.addEventListener('click', async () => {
   // In fallback mode (Firefox) prefer the free-text input when it has a value.
   const font = (!fontTextEl.hidden && fontTextEl.value.trim()) || fontEl.value;
   const config = { ...currentCfg, font, enabled: enabledEl.checked, rtl: rtlEl.checked };
-  await setConfig(key, config);
+  try {
+    await setConfig(key, config);
+  } catch (err) {
+    setStatus('Save failed.');
+    return;
+  }
   activeFontEl.textContent = font ? font : 'No override set';
   setStatus('Saved.');
 });

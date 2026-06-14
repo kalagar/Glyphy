@@ -11,9 +11,13 @@
     return h.startsWith("www.") ? [h, h.slice(4)] : [h, "www." + h];
   }
   function getConfig(host) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const keys = getCandidateKeys(host);
       chrome.storage.local.get(keys, (data) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
         const key = keys.find((k) => data[k] !== void 0) || host;
         const cfg = data[key] !== void 0 ? data[key] : null;
         resolve({ cfg, key });
@@ -149,7 +153,14 @@
     }
     domainEl.textContent = hostname;
     await loadFontList();
-    const { cfg, key } = await getConfig(hostname);
+    let cfg, key;
+    try {
+      ({ cfg, key } = await getConfig(hostname));
+    } catch (err) {
+      cfg = null;
+      key = hostname;
+      setStatus("Failed to load settings.");
+    }
     configKey = key;
     currentCfg = cfg && typeof cfg === "object" ? cfg : {};
     if (cfg) {
@@ -174,7 +185,12 @@
     const key = configKey || hostname;
     const font = !fontTextEl.hidden && fontTextEl.value.trim() || fontEl.value;
     const config = { ...currentCfg, font, enabled: enabledEl.checked, rtl: rtlEl.checked };
-    await setConfig(key, config);
+    try {
+      await setConfig(key, config);
+    } catch (err) {
+      setStatus("Save failed.");
+      return;
+    }
     activeFontEl.textContent = font ? font : "No override set";
     setStatus("Saved.");
   });

@@ -30,7 +30,26 @@
     });
   }
   function getAllConfigs() {
-    return new Promise((resolve) => chrome.storage.local.get(null, resolve));
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(null, (data) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(data);
+      });
+    });
+  }
+  function setAllConfigs(data) {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.set(data, () => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve();
+      });
+    });
   }
 
   // src/lib/fonts.js
@@ -261,20 +280,23 @@
         errorEl.hidden = false;
         return;
       }
-      chrome.storage.local.set(data, () => {
-        if (chrome.runtime.lastError) {
-          errorEl.textContent = "Import failed: " + chrome.runtime.lastError.message;
-          errorEl.hidden = false;
-          return;
-        }
+      setAllConfigs(data).then(() => {
         location.reload();
+      }).catch((err) => {
+        errorEl.textContent = "Import failed: " + err.message;
+        errorEl.hidden = false;
       });
     };
     reader.readAsText(file);
   }
   async function init() {
     fonts = await getInstalledFonts();
-    const all = await getAllConfigs();
+    let all;
+    try {
+      all = await getAllConfigs();
+    } catch (err) {
+      all = {};
+    }
     const popularBody = document.getElementById("popular-body");
     for (const site of POPULAR) {
       popularBody.appendChild(buildRow(site.hostname, all[site.hostname], true, site.label));

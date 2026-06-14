@@ -2,7 +2,7 @@
 // Wires DOM rows to storage; all business logic lives in src/lib/.
 
 import { DEFAULT_RTL_HOSTNAMES } from './lib/config.js';
-import { setConfig, removeConfig, getAllConfigs } from './lib/storage.js';
+import { setConfig, removeConfig, getAllConfigs, setAllConfigs } from './lib/storage.js';
 import { getInstalledFonts } from './lib/fonts.js';
 
 const POPULAR = [
@@ -209,13 +209,11 @@ function importSettings(file) {
       errorEl.hidden = false;
       return;
     }
-    chrome.storage.local.set(data, () => {
-      if (chrome.runtime.lastError) {
-        errorEl.textContent = 'Import failed: ' + chrome.runtime.lastError.message;
-        errorEl.hidden = false;
-        return;
-      }
+    setAllConfigs(data).then(() => {
       location.reload();
+    }).catch(err => {
+      errorEl.textContent = 'Import failed: ' + err.message;
+      errorEl.hidden = false;
     });
   };
   reader.readAsText(file);
@@ -227,7 +225,12 @@ async function init() {
   fonts = await getInstalledFonts();
 
   // Load all saved configs
-  const all = await getAllConfigs();
+  let all;
+  try {
+    all = await getAllConfigs();
+  } catch (err) {
+    all = {};
+  }
 
   // Popular rows (always visible)
   const popularBody = document.getElementById('popular-body');
