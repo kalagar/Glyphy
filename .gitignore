@@ -15,7 +15,6 @@ build/
 # Node (if tooling is added later)
 node_modules/
 npm-debug.log*
-package-lock.json
 .gitnexus
 
 # Playwright MCP runtime artifacts
