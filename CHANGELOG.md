@@ -4,6 +4,13 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [1.4.0](https://github.com/kalagar/Glyphy/compare/v1.3.2...v1.4.0) (2026-06-14)
+
+
+### Features
+
+* add packaging script for Chrome/Firefox extension artifacts ([#33](https://github.com/kalagar/Glyphy/issues/33)) ([94a5c5c](https://github.com/kalagar/Glyphy/commit/94a5c5cef8eb3b955c50813e96c196c78e154be9))
+
 ## [1.3.2](https://github.com/kalagar/Glyphy/compare/v1.3.1...v1.3.2) (2026-06-14)
 
 
