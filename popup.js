@@ -181,7 +181,12 @@
   resetEl.addEventListener("click", async () => {
     if (!hostname) return;
     const key = configKey || hostname;
-    await removeConfig(key);
+    try {
+      await removeConfig(key);
+    } catch (err) {
+      setStatus("Reset failed.");
+      return;
+    }
     configKey = hostname;
     currentCfg = {};
     enabledEl.checked = true;

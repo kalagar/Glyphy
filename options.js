@@ -186,14 +186,25 @@
     const enabledCb = tr.querySelector(".cb-enabled");
     const rtlCb = tr.querySelector(".cb-rtl");
     const config = { font: sel.value, enabled: enabledCb.checked, rtl: rtlCb.checked };
-    await setConfig(hostname, config);
+    try {
+      await setConfig(hostname, config);
+    } catch (err) {
+      alert("Save failed: " + err.message);
+      return false;
+    }
     tr.classList.add("configured");
     const removeBtn = tr.querySelectorAll(".td-actions button")[1];
     removeBtn.style.visibility = "visible";
     flash(tr, "saved");
+    return true;
   }
   async function removeRow(tr, hostname, isPopular) {
-    await removeConfig(hostname);
+    try {
+      await removeConfig(hostname);
+    } catch (err) {
+      alert("Remove failed: " + err.message);
+      return;
+    }
     if (isPopular) {
       tr.classList.remove("configured");
       tr.querySelector("select").value = "";
@@ -299,7 +310,7 @@
         if (row) {
           row.querySelector("select").value = font;
           row.querySelector(".cb-enabled").checked = enabled;
-          await saveRow(row, host, true);
+          if (!await saveRow(row, host, true)) return;
           row.scrollIntoView({ behavior: "smooth", block: "center" });
           newDomain.value = "";
           updateAddBtn();
@@ -310,13 +321,18 @@
       if (existing) {
         existing.querySelector("select").value = font;
         existing.querySelector(".cb-enabled").checked = enabled;
-        await saveRow(existing, host, false);
+        if (!await saveRow(existing, host, false)) return;
         newDomain.value = "";
         updateAddBtn();
         return;
       }
       const cfg = { font, enabled };
-      await setConfig(host, cfg);
+      try {
+        await setConfig(host, cfg);
+      } catch (err) {
+        alert("Save failed: " + err.message);
+        return;
+      }
       customBody.appendChild(buildRow(host, cfg, false, null));
       refreshCustomSection();
       newDomain.value = "";
