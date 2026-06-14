@@ -148,6 +148,47 @@ enforces that they match:
 Release Please updates `manifest.json`, `CHANGELOG.md`, the git tag, and the built
 `.zip` artifact — no manual version edits needed.
 
+## Build
+
+The `scripts/build.sh` script packages the extension into installable artifacts for Chrome/Edge and Firefox.
+
+### Prerequisites
+
+- `zip` (pre-installed on macOS and most Linux distributions)
+- `python3` (used to read the version from `manifest.json`)
+
+### Running the build
+
+```bash
+# Compile JS sources only (esbuild)
+npm run build
+
+# Package extension artifacts (requires compiled sources)
+npm run package
+# or
+./scripts/build.sh
+```
+
+The script creates `~/Downloads/glyphy/` if it does not exist and writes:
+
+| File | Target |
+| --- | --- |
+| `glyphy-<version>-chrome.zip` | Chrome / Edge |
+| `glyphy-<version>-firefox.xpi` | Firefox |
+
+### Installing the built artifacts
+
+**Chrome / Edge:**
+1. Unzip `glyphy-<version>-chrome.zip` to a folder.
+2. Open `chrome://extensions` (or `edge://extensions`).
+3. Enable **Developer mode**.
+4. Click **Load unpacked** and select the unzipped folder.
+
+**Firefox:**
+1. Open `about:addons` in Firefox.
+2. Click the gear icon → **Install Add-on From File…**
+3. Select `glyphy-<version>-firefox.xpi`.
+
 ## License
 
 MIT
