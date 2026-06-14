@@ -1,0 +1,13 @@
+{
+  "name": "glyphy",
+  "private": true,
+  "type": "module",
+  "description": "Build tooling for the Glyphy browser extension",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}
