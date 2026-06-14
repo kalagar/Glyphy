@@ -160,11 +160,13 @@ The `scripts/build.sh` script packages the extension into installable artifacts 
 ### Running the build
 
 ```bash
-./scripts/build.sh
-# or
-npm run package
-# or (also re-compiles JS sources via esbuild first)
+# Compile JS sources only (esbuild)
 npm run build
+
+# Package extension artifacts (requires compiled sources)
+npm run package
+# or
+./scripts/build.sh
 ```
 
 The script creates `~/Downloads/glyphy/` if it does not exist and writes:
