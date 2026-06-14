@@ -1,6 +1,6 @@
 # Glyphy
 
-A Chrome extension (Manifest V3) that lets you apply any installed system font to specific websites — configured per-domain. Visit a site, pick a font, and it sticks.
+A browser extension (Manifest V3) for Chrome, Firefox, and Safari that lets you apply any installed system font to specific websites — configured per-domain. Visit a site, pick a font, and it sticks.
 
 ## Features
 
@@ -28,6 +28,34 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 3. Toggle **Developer mode** on (top-right corner).
 4. Click **Load unpacked** and select the project folder.
 5. The **G** icon appears in the toolbar — pin it for quick access.
+
+### Firefox
+
+Load as a temporary add-on (no signing required for local testing):
+
+1. Open `about:debugging#/runtime/this-firefox` in Firefox.
+2. Click **Load Temporary Add-on…** and select `manifest.json` from the project folder.
+
+> **Note on fonts:** Firefox does not implement the `fontSettings` API, so the font dropdown uses a curated built-in list. A free-text field appears below the dropdown so you can type any font name not shown in the list.
+
+### Safari
+
+Safari cannot load unpacked extensions directly. You must convert the project to an Xcode app first:
+
+1. Install Xcode from the Mac App Store (requires macOS).
+2. Run Apple's converter from the project root:
+   ```
+   xcrun safari-web-extension-converter /path/to/Glyphy
+   ```
+   This generates an Xcode project (`Glyphy (macOS)/Glyphy.xcodeproj`).
+3. Open the generated project in Xcode and build it (**Product → Build**).
+4. Run the containing app once so Safari registers the extension.
+5. In Safari, go to **Settings → Extensions** and enable **Glyphy**.
+6. For local testing with an unsigned build, first enable **Develop → Allow Unsigned Extensions** in Safari (the Develop menu must be enabled via **Settings → Advanced → Show features for web developers**).
+
+> **Note on fonts:** Safari does not implement the `fontSettings` API, so the font dropdown uses the same curated built-in list as Firefox. The free-text field lets you type any font name not shown in the list.
+
+> **Distribution:** Safari extensions must ship as part of a native macOS/iOS app via the Mac App Store, which requires an Apple Developer Program membership.
 
 ## Usage
 
@@ -61,7 +89,7 @@ Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyp
 | --- | --- |
 | `manifest.json` | Extension manifest (MV3), declares permissions and entry points |
 | `content.js` | Runs at `document_start` on every page; reads the saved font and RTL setting from `chrome.storage.local`; injects a `<style>` for the font override (excluding icon-font selectors) and, when RTL is enabled for the site, injects `unicode-bidi: plaintext; text-align: start` for elements with RTL `lang` or `dir` attributes |
-| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header |
+| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` (falls back to a curated list + free-text input on Firefox/Safari where the API is unavailable) and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header |
 | `options.js` / `options.html` | Full management page; supports popular-site quick rows, custom domain entry, and JSON export/import of all settings |
 | `options.css` / `popup.css` | Styles for the respective pages |
 
