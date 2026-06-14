@@ -2,6 +2,7 @@
 
 const domainEl = document.getElementById("domain");
 const fontEl = document.getElementById("font");
+const fontTextEl = document.getElementById("font-text");
 const enabledEl = document.getElementById("enabled");
 const rtlEl = document.getElementById("rtl");
 const saveEl = document.getElementById("save");
@@ -10,6 +11,7 @@ const statusEl = document.getElementById("status");
 const activeFontEl = document.getElementById("active-font");
 
 const DEFAULT_RTL_HOSTNAMES = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+// FALLBACK_FONTS is defined in fonts.js (loaded before this script).
 
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
@@ -36,22 +38,37 @@ async function getHostname() {
 }
 
 // Populate the <select> with installed system fonts.
+// Falls back to a curated list + free-text input when chrome.fontSettings is
+// unavailable (e.g. Firefox).
 function loadFontList() {
   return new Promise((resolve) => {
-    chrome.fontSettings.getFontList((fonts) => {
-      // Deduplicate by displayName, keep alphabetical order.
-      const seen = new Set();
-      for (const f of fonts) {
-        if (seen.has(f.displayName)) continue;
-        seen.add(f.displayName);
+    if (chrome.fontSettings) {
+      chrome.fontSettings.getFontList((fonts) => {
+        // Deduplicate by displayName, keep alphabetical order.
+        const seen = new Set();
+        for (const f of fonts) {
+          if (seen.has(f.displayName)) continue;
+          seen.add(f.displayName);
+          const opt = document.createElement("option");
+          // fontId is the actual family name to use in CSS.
+          opt.value = f.fontId;
+          opt.textContent = f.displayName;
+          fontEl.appendChild(opt);
+        }
+        resolve();
+      });
+    } else {
+      // fontSettings unavailable: populate with curated list and reveal the
+      // free-text input so the user can type any installed font name.
+      for (const f of FALLBACK_FONTS) {
         const opt = document.createElement("option");
-        // fontId is the actual family name to use in CSS.
         opt.value = f.fontId;
         opt.textContent = f.displayName;
         fontEl.appendChild(opt);
       }
+      fontTextEl.hidden = false;
       resolve();
-    });
+    }
   });
 }
 
@@ -75,7 +92,14 @@ async function init() {
     const cfg = data[configKey];
     currentCfg = cfg && typeof cfg === 'object' ? cfg : {};
     if (cfg) {
-      if (cfg.font) fontEl.value = cfg.font;
+      if (cfg.font) {
+        fontEl.value = cfg.font;
+        // In fallback mode the curated list may not contain the saved font;
+        // show it in the free-text input so the value is preserved.
+        if (!fontTextEl.hidden && fontEl.value !== cfg.font) {
+          fontTextEl.value = cfg.font;
+        }
+      }
       enabledEl.checked = cfg.enabled !== false;
       rtlEl.checked = typeof cfg === 'object' && Object.prototype.hasOwnProperty.call(cfg, 'rtl') ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
     } else {
@@ -85,12 +109,20 @@ async function init() {
   });
 }
 
+// In fallback mode, clear the free-text input when the user picks a curated
+// font from the dropdown so the selection reliably takes effect on save.
+fontEl.addEventListener("change", () => {
+  if (!fontTextEl.hidden) fontTextEl.value = "";
+});
+
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
-  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked, rtl: rtlEl.checked };
+  // In fallback mode (Firefox) prefer the free-text input when it has a value.
+  const font = (!fontTextEl.hidden && fontTextEl.value.trim()) || fontEl.value;
+  const config = { ...currentCfg, font, enabled: enabledEl.checked, rtl: rtlEl.checked };
   chrome.storage.local.set({ [key]: config }, () => {
-    activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
+    activeFontEl.textContent = font ? font : "No override set";
     setStatus("Saved.");
   });
 });

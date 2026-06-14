@@ -24,6 +24,7 @@ const POPULAR_HOSTNAMES = new Set(POPULAR.map(p => p.hostname));
 
 // Hostnames that have RTL support enabled by default (matching content.js RTL_HOSTS).
 const DEFAULT_RTL_HOSTNAMES = new Set(['www.youtube.com', 'youtube.com', 'studio.youtube.com']);
+// FALLBACK_FONTS is defined in fonts.js (loaded before this script).
 
 let fonts = [];
 
@@ -213,17 +214,21 @@ function importSettings(file) {
 // ── init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
-  // Load installed fonts
-  fonts = await new Promise(resolve => {
-    chrome.fontSettings.getFontList(list => {
-      const seen = new Set();
-      const out = [];
-      for (const f of list) {
-        if (!seen.has(f.displayName)) { seen.add(f.displayName); out.push(f); }
-      }
-      resolve(out);
+  // Load installed fonts; fall back to curated list when fontSettings is unavailable (e.g. Firefox).
+  if (chrome.fontSettings) {
+    fonts = await new Promise(resolve => {
+      chrome.fontSettings.getFontList(list => {
+        const seen = new Set();
+        const out = [];
+        for (const f of list) {
+          if (!seen.has(f.displayName)) { seen.add(f.displayName); out.push(f); }
+        }
+        resolve(out);
+      });
     });
-  });
+  } else {
+    fonts = FALLBACK_FONTS;
+  }
 
   // Load all saved configs
   const all = await new Promise(resolve => chrome.storage.local.get(null, resolve));
