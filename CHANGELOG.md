@@ -4,6 +4,13 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [1.3.1](https://github.com/kalagar/Glyphy/compare/v1.3.0...v1.3.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* Firefox support — fall back to curated font list when fontSettings unavailable ([#23](https://github.com/kalagar/Glyphy/issues/23)) ([4a87923](https://github.com/kalagar/Glyphy/commit/4a879236074d4a3cff89126ed7fe3c6b23221ffc))
+
 ## [1.3.0](https://github.com/kalagar/Glyphy/compare/v1.2.2...v1.3.0) (2026-06-13)
 
 
