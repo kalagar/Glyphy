@@ -1,6 +1,6 @@
 # Glyphy
 
-A browser extension (Manifest V3) for Chrome, Firefox, and Safari that lets you apply any installed system font to specific websites — configured per-domain. Visit a site, pick a font, and it sticks.
+A browser extension (Manifest V3) for Chrome, Edge, Firefox, and Safari that lets you apply any installed system font to specific websites — configured per-domain. Visit a site, pick a font, and it sticks.
 
 ## Features
 
@@ -28,6 +28,20 @@ This extension is not published to the Chrome Web Store. Load it as an unpacked 
 3. Toggle **Developer mode** on (top-right corner).
 4. Click **Load unpacked** and select the project folder.
 5. The **G** icon appears in the toolbar — pin it for quick access.
+
+### Microsoft Edge
+
+Edge is Chromium-based and runs the extension natively — no code changes needed. Load it as an unpacked extension:
+
+1. Clone or download this repository.
+2. Open `edge://extensions` in Edge.
+3. Toggle **Developer mode** on (bottom-left corner).
+4. Click **Load unpacked** and select the project folder.
+5. The **G** icon appears in the toolbar — pin it for quick access.
+
+> **Note:** Edge supports `chrome.fontSettings.getFontList()`, so the system-font dropdown works exactly as in Chrome.
+
+> **Distribution:** Glyphy is not currently published to any extension store. Install it as an unpacked extension using the steps above.
 
 ### Firefox
 
@@ -73,11 +87,14 @@ Safari cannot load unpacked extensions directly. You must convert the project to
 
 Press **Alt+Shift+G** to open the popup without clicking the toolbar icon.
 
-To customize the shortcut, go to `chrome://extensions/shortcuts`.
+To customize the shortcut:
+- **Chrome:** `chrome://extensions/shortcuts`
+- **Edge:** `edge://extensions/shortcuts`
+- **Firefox:** `about:addons` → gear icon → **Manage Extension Shortcuts**
 
 ### Options page
 
-Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyphy → **Extension options**.
+Click **Manage all sites** in the popup, or go to your browser's extensions page → Glyphy → **Extension options** (`chrome://extensions` in Chrome, `edge://extensions` in Edge).
 
 - **Popular sites** section — pre-listed rows for common sites; pick a font and toggle RTL support per site.
 - **Custom sites** section — shows any domains you've configured that aren't in the popular list.
@@ -89,7 +106,7 @@ Click **Manage all sites** in the popup, or go to `chrome://extensions` → Glyp
 | --- | --- |
 | `manifest.json` | Extension manifest (MV3), declares permissions and entry points |
 | `content.js` | Runs at `document_start` on every page; reads the saved font and RTL setting from `chrome.storage.local`; injects a `<style>` for the font override (excluding icon-font selectors) and, when RTL is enabled for the site, injects `unicode-bidi: plaintext; text-align: start` for elements with RTL `lang` or `dir` attributes |
-| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` (falls back to a curated list + free-text input on Firefox/Safari where the API is unavailable) and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header |
+| `popup.js` / `popup.html` | Toolbar popup; lists system fonts via `chrome.fontSettings.getFontList()` (falls back to a curated list + free-text input on Firefox/Safari where the API is unavailable) and writes `{ font, enabled }` per hostname; shows the active font name as a subtitle in the header; Edge supports the API natively so the full system-font dropdown is available |
 | `options.js` / `options.html` | Full management page; supports popular-site quick rows, custom domain entry, and JSON export/import of all settings |
 | `options.css` / `popup.css` | Styles for the respective pages |
 
