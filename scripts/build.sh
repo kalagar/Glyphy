@@ -9,8 +9,26 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$ROOT_DIR"
 
+# Verify required tools are available
+if ! command -v zip &>/dev/null; then
+  echo "Error: 'zip' is not installed. Install it (e.g. 'brew install zip' on macOS or 'apt-get install zip' on Debian/Ubuntu) and re-run." >&2
+  exit 1
+fi
+
 # Read version from manifest.json
-VERSION=$(python3 -c "import json; print(json.load(open('manifest.json'))['version'])")
+if [[ ! -f manifest.json ]]; then
+  echo "Error: manifest.json not found in $(pwd)" >&2
+  exit 1
+fi
+VERSION=$(python3 -c "
+import json, sys
+try:
+    v = json.load(open('manifest.json'))['version']
+    print(v)
+except Exception as e:
+    print('Error reading version from manifest.json: ' + str(e), file=sys.stderr)
+    sys.exit(1)
+") || exit 1
 
 OUT_DIR="$HOME/Downloads/glyphy"
 mkdir -p "$OUT_DIR"
@@ -23,6 +41,8 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Copy extension runtime files only (no dev/tooling files).
+# The list is intentionally explicit: only files that belong in the browser
+# extension are shipped, so accidentally added dev files are never packaged.
 cp manifest.json content.js popup.js options.js \
    popup.html options.html popup.css options.css \
    LICENSE "$TMP_DIR/"
