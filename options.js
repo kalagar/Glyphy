@@ -25,6 +25,44 @@ const POPULAR_HOSTNAMES = new Set(POPULAR.map(p => p.hostname));
 // Hostnames that have RTL support enabled by default (matching content.js RTL_HOSTS).
 const DEFAULT_RTL_HOSTNAMES = new Set(['www.youtube.com', 'youtube.com', 'studio.youtube.com']);
 
+// Curated fallback used when chrome.fontSettings is unavailable (e.g. Firefox).
+const FALLBACK_FONTS = [
+  { fontId: 'Arial', displayName: 'Arial' },
+  { fontId: 'Arial Black', displayName: 'Arial Black' },
+  { fontId: 'Calibri', displayName: 'Calibri' },
+  { fontId: 'Cambria', displayName: 'Cambria' },
+  { fontId: 'Comic Sans MS', displayName: 'Comic Sans MS' },
+  { fontId: 'Consolas', displayName: 'Consolas' },
+  { fontId: 'Courier New', displayName: 'Courier New' },
+  { fontId: 'DejaVu Sans', displayName: 'DejaVu Sans' },
+  { fontId: 'DejaVu Serif', displayName: 'DejaVu Serif' },
+  { fontId: 'Franklin Gothic Medium', displayName: 'Franklin Gothic Medium' },
+  { fontId: 'Futura', displayName: 'Futura' },
+  { fontId: 'Garamond', displayName: 'Garamond' },
+  { fontId: 'Geneva', displayName: 'Geneva' },
+  { fontId: 'Georgia', displayName: 'Georgia' },
+  { fontId: 'Gill Sans', displayName: 'Gill Sans' },
+  { fontId: 'Helvetica', displayName: 'Helvetica' },
+  { fontId: 'Helvetica Neue', displayName: 'Helvetica Neue' },
+  { fontId: 'Impact', displayName: 'Impact' },
+  { fontId: 'Liberation Mono', displayName: 'Liberation Mono' },
+  { fontId: 'Liberation Sans', displayName: 'Liberation Sans' },
+  { fontId: 'Liberation Serif', displayName: 'Liberation Serif' },
+  { fontId: 'Lucida Console', displayName: 'Lucida Console' },
+  { fontId: 'Lucida Sans Unicode', displayName: 'Lucida Sans Unicode' },
+  { fontId: 'Noto Sans', displayName: 'Noto Sans' },
+  { fontId: 'Noto Serif', displayName: 'Noto Serif' },
+  { fontId: 'Open Sans', displayName: 'Open Sans' },
+  { fontId: 'Palatino Linotype', displayName: 'Palatino Linotype' },
+  { fontId: 'Roboto', displayName: 'Roboto' },
+  { fontId: 'Segoe UI', displayName: 'Segoe UI' },
+  { fontId: 'Tahoma', displayName: 'Tahoma' },
+  { fontId: 'Times New Roman', displayName: 'Times New Roman' },
+  { fontId: 'Trebuchet MS', displayName: 'Trebuchet MS' },
+  { fontId: 'Ubuntu', displayName: 'Ubuntu' },
+  { fontId: 'Verdana', displayName: 'Verdana' },
+];
+
 let fonts = [];
 
 // ── font select helpers ───────────────────────────────────────────────────────
@@ -213,17 +251,21 @@ function importSettings(file) {
 // ── init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
-  // Load installed fonts
-  fonts = await new Promise(resolve => {
-    chrome.fontSettings.getFontList(list => {
-      const seen = new Set();
-      const out = [];
-      for (const f of list) {
-        if (!seen.has(f.displayName)) { seen.add(f.displayName); out.push(f); }
-      }
-      resolve(out);
+  // Load installed fonts; fall back to curated list when fontSettings is unavailable (e.g. Firefox).
+  if (chrome.fontSettings) {
+    fonts = await new Promise(resolve => {
+      chrome.fontSettings.getFontList(list => {
+        const seen = new Set();
+        const out = [];
+        for (const f of list) {
+          if (!seen.has(f.displayName)) { seen.add(f.displayName); out.push(f); }
+        }
+        resolve(out);
+      });
     });
-  });
+  } else {
+    fonts = FALLBACK_FONTS;
+  }
 
   // Load all saved configs
   const all = await new Promise(resolve => chrome.storage.local.get(null, resolve));

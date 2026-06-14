@@ -2,6 +2,7 @@
 
 const domainEl = document.getElementById("domain");
 const fontEl = document.getElementById("font");
+const fontTextEl = document.getElementById("font-text");
 const enabledEl = document.getElementById("enabled");
 const rtlEl = document.getElementById("rtl");
 const saveEl = document.getElementById("save");
@@ -10,6 +11,44 @@ const statusEl = document.getElementById("status");
 const activeFontEl = document.getElementById("active-font");
 
 const DEFAULT_RTL_HOSTNAMES = new Set(["www.youtube.com", "youtube.com", "studio.youtube.com"]);
+
+// Curated fallback used when chrome.fontSettings is unavailable (e.g. Firefox).
+const FALLBACK_FONTS = [
+  { fontId: 'Arial', displayName: 'Arial' },
+  { fontId: 'Arial Black', displayName: 'Arial Black' },
+  { fontId: 'Calibri', displayName: 'Calibri' },
+  { fontId: 'Cambria', displayName: 'Cambria' },
+  { fontId: 'Comic Sans MS', displayName: 'Comic Sans MS' },
+  { fontId: 'Consolas', displayName: 'Consolas' },
+  { fontId: 'Courier New', displayName: 'Courier New' },
+  { fontId: 'DejaVu Sans', displayName: 'DejaVu Sans' },
+  { fontId: 'DejaVu Serif', displayName: 'DejaVu Serif' },
+  { fontId: 'Franklin Gothic Medium', displayName: 'Franklin Gothic Medium' },
+  { fontId: 'Futura', displayName: 'Futura' },
+  { fontId: 'Garamond', displayName: 'Garamond' },
+  { fontId: 'Geneva', displayName: 'Geneva' },
+  { fontId: 'Georgia', displayName: 'Georgia' },
+  { fontId: 'Gill Sans', displayName: 'Gill Sans' },
+  { fontId: 'Helvetica', displayName: 'Helvetica' },
+  { fontId: 'Helvetica Neue', displayName: 'Helvetica Neue' },
+  { fontId: 'Impact', displayName: 'Impact' },
+  { fontId: 'Liberation Mono', displayName: 'Liberation Mono' },
+  { fontId: 'Liberation Sans', displayName: 'Liberation Sans' },
+  { fontId: 'Liberation Serif', displayName: 'Liberation Serif' },
+  { fontId: 'Lucida Console', displayName: 'Lucida Console' },
+  { fontId: 'Lucida Sans Unicode', displayName: 'Lucida Sans Unicode' },
+  { fontId: 'Noto Sans', displayName: 'Noto Sans' },
+  { fontId: 'Noto Serif', displayName: 'Noto Serif' },
+  { fontId: 'Open Sans', displayName: 'Open Sans' },
+  { fontId: 'Palatino Linotype', displayName: 'Palatino Linotype' },
+  { fontId: 'Roboto', displayName: 'Roboto' },
+  { fontId: 'Segoe UI', displayName: 'Segoe UI' },
+  { fontId: 'Tahoma', displayName: 'Tahoma' },
+  { fontId: 'Times New Roman', displayName: 'Times New Roman' },
+  { fontId: 'Trebuchet MS', displayName: 'Trebuchet MS' },
+  { fontId: 'Ubuntu', displayName: 'Ubuntu' },
+  { fontId: 'Verdana', displayName: 'Verdana' },
+];
 
 let hostname = null;
 let configKey = null; // actual storage key (may differ from hostname via www-fallback)
@@ -36,22 +75,37 @@ async function getHostname() {
 }
 
 // Populate the <select> with installed system fonts.
+// Falls back to a curated list + free-text input when chrome.fontSettings is
+// unavailable (e.g. Firefox).
 function loadFontList() {
   return new Promise((resolve) => {
-    chrome.fontSettings.getFontList((fonts) => {
-      // Deduplicate by displayName, keep alphabetical order.
-      const seen = new Set();
-      for (const f of fonts) {
-        if (seen.has(f.displayName)) continue;
-        seen.add(f.displayName);
+    if (chrome.fontSettings) {
+      chrome.fontSettings.getFontList((fonts) => {
+        // Deduplicate by displayName, keep alphabetical order.
+        const seen = new Set();
+        for (const f of fonts) {
+          if (seen.has(f.displayName)) continue;
+          seen.add(f.displayName);
+          const opt = document.createElement("option");
+          // fontId is the actual family name to use in CSS.
+          opt.value = f.fontId;
+          opt.textContent = f.displayName;
+          fontEl.appendChild(opt);
+        }
+        resolve();
+      });
+    } else {
+      // fontSettings unavailable: populate with curated list and reveal the
+      // free-text input so the user can type any installed font name.
+      for (const f of FALLBACK_FONTS) {
         const opt = document.createElement("option");
-        // fontId is the actual family name to use in CSS.
         opt.value = f.fontId;
         opt.textContent = f.displayName;
         fontEl.appendChild(opt);
       }
+      fontTextEl.hidden = false;
       resolve();
-    });
+    }
   });
 }
 
@@ -75,7 +129,14 @@ async function init() {
     const cfg = data[configKey];
     currentCfg = cfg && typeof cfg === 'object' ? cfg : {};
     if (cfg) {
-      if (cfg.font) fontEl.value = cfg.font;
+      if (cfg.font) {
+        fontEl.value = cfg.font;
+        // In fallback mode the curated list may not contain the saved font;
+        // show it in the free-text input so the value is preserved.
+        if (!fontTextEl.hidden && fontEl.value !== cfg.font) {
+          fontTextEl.value = cfg.font;
+        }
+      }
       enabledEl.checked = cfg.enabled !== false;
       rtlEl.checked = typeof cfg === 'object' && Object.prototype.hasOwnProperty.call(cfg, 'rtl') ? cfg.rtl : DEFAULT_RTL_HOSTNAMES.has(hostname);
     } else {
@@ -88,9 +149,11 @@ async function init() {
 saveEl.addEventListener("click", () => {
   if (!hostname) return;
   const key = configKey || hostname;
-  const config = { ...currentCfg, font: fontEl.value, enabled: enabledEl.checked, rtl: rtlEl.checked };
+  // In fallback mode (Firefox) prefer the free-text input when it has a value.
+  const font = (!fontTextEl.hidden && fontTextEl.value.trim()) || fontEl.value;
+  const config = { ...currentCfg, font, enabled: enabledEl.checked, rtl: rtlEl.checked };
   chrome.storage.local.set({ [key]: config }, () => {
-    activeFontEl.textContent = fontEl.value ? fontEl.value : "No override set";
+    activeFontEl.textContent = font ? font : "No override set";
     setStatus("Saved.");
   });
 });
