@@ -1,6 +1,11 @@
-// Curated fallback font list used when chrome.fontSettings is unavailable (e.g. Firefox).
-// Each entry matches the {fontId, displayName} shape returned by chrome.fontSettings.getFontList().
-const FALLBACK_FONTS = [
+// Font helpers — curated fallback list and installer-font loader with dedup.
+
+/**
+ * Curated fallback font list used when chrome.fontSettings is unavailable
+ * (e.g. Firefox). Each entry matches the {fontId, displayName} shape returned
+ * by chrome.fontSettings.getFontList().
+ */
+export const FALLBACK_FONTS = [
   { fontId: 'Arial', displayName: 'Arial' },
   { fontId: 'Arial Black', displayName: 'Arial Black' },
   { fontId: 'Calibri', displayName: 'Calibri' },
@@ -36,3 +41,29 @@ const FALLBACK_FONTS = [
   { fontId: 'Ubuntu', displayName: 'Ubuntu' },
   { fontId: 'Verdana', displayName: 'Verdana' },
 ];
+
+/**
+ * Returns the list of installed system fonts, deduplicated by displayName.
+ * Falls back to FALLBACK_FONTS when chrome.fontSettings is unavailable.
+ *
+ * @returns {Promise<Array<{fontId: string, displayName: string}>>}
+ */
+export function getInstalledFonts() {
+  return new Promise(resolve => {
+    if (chrome.fontSettings) {
+      chrome.fontSettings.getFontList(list => {
+        const seen = new Set();
+        const out = [];
+        for (const f of list) {
+          if (!seen.has(f.displayName)) {
+            seen.add(f.displayName);
+            out.push(f);
+          }
+        }
+        resolve(out);
+      });
+    } else {
+      resolve(FALLBACK_FONTS);
+    }
+  });
+}

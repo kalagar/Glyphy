@@ -29,8 +29,17 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build extension
+        run: npm run build
+
       - name: Install web-ext
         run: npm install -g web-ext
 
       - name: Lint with web-ext
-        run: web-ext lint --source-dir . --ignore-files '.github/**' 'README.md' 'LICENSE'
+        run: >
+          web-ext lint --source-dir .
+          --ignore-files '.github/**' 'README.md' 'LICENSE'
+          'src/**' 'build.js' 'package.json' 'node_modules/**'
