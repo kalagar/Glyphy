@@ -4,6 +4,13 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [1.3.2](https://github.com/kalagar/Glyphy/compare/v1.3.1...v1.3.2) (2026-06-14)
+
+
+### Bug Fixes
+
+* clear free-text font on dropdown change in options; fix PR title guard for copilot branches ([#30](https://github.com/kalagar/Glyphy/issues/30)) ([fa97188](https://github.com/kalagar/Glyphy/commit/fa97188200d265527fd4bee07862b57e0b46d490))
+
 ## [1.3.1](https://github.com/kalagar/Glyphy/compare/v1.3.0...v1.3.1) (2026-06-14)
 
 
