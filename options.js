@@ -11,7 +11,7 @@
     return new Promise((resolve, reject) => {
       chrome.storage.local.set({ [key]: cfg }, () => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         resolve();
@@ -22,7 +22,7 @@
     return new Promise((resolve, reject) => {
       chrome.storage.local.remove(key, () => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         resolve();

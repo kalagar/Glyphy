@@ -41,7 +41,7 @@ export function getConfig(host) {
 export function setConfig(key, cfg) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.set({ [key]: cfg }, () => {
-      if (chrome.runtime.lastError) { reject(chrome.runtime.lastError); return; }
+      if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
       resolve();
     });
   });
@@ -56,7 +56,7 @@ export function setConfig(key, cfg) {
 export function removeConfig(key) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.remove(key, () => {
-      if (chrome.runtime.lastError) { reject(chrome.runtime.lastError); return; }
+      if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
       resolve();
     });
   });
