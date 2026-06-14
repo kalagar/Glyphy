@@ -84,6 +84,13 @@ jobs:
 
             const expected = PREFIX_TO_TYPE[prefix];
             if (!expected) {
+              if (rawPrefix === 'copilot') {
+                core.warning(
+                  `Copilot branch "${branch}" has no recognized type-word as its name prefix (got "${prefix}"). ` +
+                  `Branch-to-type check skipped; the PR title must still be a valid conventional commit.`
+                );
+                return;
+              }
               core.setFailed(
                 `Branch "${branch}" has an unrecognized prefix "${prefix}/".\n` +
                 `Use one of: feature/ feat/ fix/ bug/ bugfix/ hotfix/ breaking/ ` +
