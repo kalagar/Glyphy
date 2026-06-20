@@ -10,6 +10,10 @@
     "youtube.com",
     "studio.youtube.com"
   ]);
+  var CHATGPT_HOSTNAMES = /* @__PURE__ */ new Set([
+    "chatgpt.com",
+    "www.chatgpt.com"
+  ]);
   function resolveRtl(hostname2, cfg, enabled) {
     if (!enabled) return false;
     if (cfg && typeof cfg === "object" && Object.prototype.hasOwnProperty.call(cfg, "rtl")) {
@@ -39,6 +43,21 @@
     ".ytcp-comment-dialog-detail .ytcp-ve"
   ].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
   var GENERAL_RTL_CSS = '[lang|="ar"], [lang|="fa"], [lang|="he"], [lang|="ur"], [dir="rtl"] {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}';
+  var CHATGPT_RTL_CSS = [
+    '[data-message-author-role="assistant"] .markdown',
+    '[data-message-author-role="assistant"] .markdown p',
+    '[data-message-author-role="assistant"] .markdown li',
+    '[data-message-author-role="assistant"] .markdown h1',
+    '[data-message-author-role="assistant"] .markdown h2',
+    '[data-message-author-role="assistant"] .markdown h3',
+    '[data-message-author-role="assistant"] .markdown h4',
+    '[data-message-author-role="assistant"] .markdown h5',
+    '[data-message-author-role="assistant"] .markdown h6',
+    '[data-message-author-role="assistant"] .markdown blockquote',
+    '[data-message-author-role="assistant"] .markdown pre',
+    '[data-message-author-role="assistant"] .markdown td',
+    '[data-message-author-role="assistant"] .markdown th'
+  ].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
 
   // src/content.js
   var STYLE_ID = "font-changer-style";
@@ -75,7 +94,15 @@
     const enabled = config ? config.enabled !== false : false;
     const rtl = resolveRtl(hostname, config, enabled);
     if (rtl) {
-      applyRtlFix(DEFAULT_RTL_HOSTNAMES.has(hostname) ? RTL_CSS : GENERAL_RTL_CSS);
+      let css;
+      if (DEFAULT_RTL_HOSTNAMES.has(hostname)) {
+        css = RTL_CSS;
+      } else if (CHATGPT_HOSTNAMES.has(hostname)) {
+        css = CHATGPT_RTL_CSS;
+      } else {
+        css = GENERAL_RTL_CSS;
+      }
+      applyRtlFix(css);
     } else {
       removeRtlFix();
     }

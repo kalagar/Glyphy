@@ -2,8 +2,8 @@
 // Reads this hostname's config and injects CSS overrides; re-renders on live updates.
 
 import { getCandidateKeys } from './lib/storage.js';
-import { DEFAULT_RTL_HOSTNAMES, resolveRtl } from './lib/config.js';
-import { buildFontCss, RTL_CSS, GENERAL_RTL_CSS } from './lib/css.js';
+import { DEFAULT_RTL_HOSTNAMES, CHATGPT_HOSTNAMES, resolveRtl } from './lib/config.js';
+import { buildFontCss, RTL_CSS, GENERAL_RTL_CSS, CHATGPT_RTL_CSS } from './lib/css.js';
 
 const STYLE_ID = 'font-changer-style';
 const RTL_STYLE_ID = 'glyphy-rtl-style';
@@ -46,7 +46,15 @@ function render(config) {
   const rtl = resolveRtl(hostname, config, enabled);
 
   if (rtl) {
-    applyRtlFix(DEFAULT_RTL_HOSTNAMES.has(hostname) ? RTL_CSS : GENERAL_RTL_CSS);
+    let css;
+    if (DEFAULT_RTL_HOSTNAMES.has(hostname)) {
+      css = RTL_CSS;
+    } else if (CHATGPT_HOSTNAMES.has(hostname)) {
+      css = CHATGPT_RTL_CSS;
+    } else {
+      css = GENERAL_RTL_CSS;
+    }
+    applyRtlFix(css);
   } else {
     removeRtlFix();
   }

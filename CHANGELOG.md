@@ -4,6 +4,14 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **RTL support on chatgpt.com** — ChatGPT does not add `lang` or `dir` attributes to its response containers, so the generic RTL selector never matched. A new `CHATGPT_RTL_CSS` constant targets `[data-message-author-role="assistant"] .markdown` and its block-level descendants (`p`, `li`, `h1`–`h6`, `blockquote`, `pre`, `td`, `th`) with `unicode-bidi: plaintext; text-align: start`, letting the browser's bidi algorithm determine direction per element from the text content ([#35](https://github.com/kalagar/Glyphy/issues/35)).
+
+---
+
 ## [1.4.0](https://github.com/kalagar/Glyphy/compare/v1.3.2...v1.4.0) (2026-06-14)
 
 
