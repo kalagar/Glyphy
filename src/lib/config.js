@@ -8,6 +8,15 @@ export const DEFAULT_RTL_HOSTNAMES = new Set([
 ]);
 
 /**
+ * Hostnames that require site-specific RTL CSS targeting ChatGPT's
+ * response DOM structure rather than the generic lang/dir selectors.
+ */
+export const CHATGPT_HOSTNAMES = new Set([
+  'chatgpt.com',
+  'www.chatgpt.com',
+]);
+
+/**
  * Resolves whether RTL should be active for a hostname + config pair.
  *   • If enabled is false, always returns false.
  *   • If cfg.rtl is explicitly set, honours it.

@@ -53,3 +53,23 @@ export const GENERAL_RTL_CSS =
   '  unicode-bidi: plaintext !important;\n' +
   '  text-align: start !important;\n' +
   '}';
+
+/**
+ * RTL fix for chatgpt.com.
+ * ChatGPT does not add lang or dir attributes to its response containers, so
+ * the generic selector above never matches.  Instead we target the assistant
+ * message markdown container and its block-level descendants directly, letting
+ * the browser's Unicode Bidi Algorithm determine direction per element from
+ * the first strong character in each block.
+ */
+export const CHATGPT_RTL_CSS = [
+  '[data-message-author-role="assistant"] .markdown',
+  '[data-message-author-role="assistant"] .markdown p',
+  '[data-message-author-role="assistant"] .markdown li',
+  '[data-message-author-role="assistant"] .markdown h1',
+  '[data-message-author-role="assistant"] .markdown h2',
+  '[data-message-author-role="assistant"] .markdown h3',
+  '[data-message-author-role="assistant"] .markdown h4',
+  '[data-message-author-role="assistant"] .markdown td',
+  '[data-message-author-role="assistant"] .markdown th',
+].join(',\n') + ' {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}';
