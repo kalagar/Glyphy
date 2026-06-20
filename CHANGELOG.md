@@ -4,6 +4,13 @@ All notable changes to Glyphy are documented here.
 
 ---
 
+## [1.4.1](https://github.com/kalagar/Glyphy/compare/v1.4.0...v1.4.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* RTL support broken on chatgpt.com — responses in RTL languages render LTR ([#36](https://github.com/kalagar/Glyphy/issues/36)) ([65f938f](https://github.com/kalagar/Glyphy/commit/65f938f8a9ba0d13d01f894a195f4db59c24b78d))
+
 ## [Unreleased]
 
 ### Fixed

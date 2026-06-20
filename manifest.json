@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Glyphy",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Apply your favorite installed font on specific websites, configured per-domain.",
   "permissions": [
     "storage",
