@@ -51,6 +51,10 @@
     '[data-message-author-role="assistant"] .markdown h2',
     '[data-message-author-role="assistant"] .markdown h3',
     '[data-message-author-role="assistant"] .markdown h4',
+    '[data-message-author-role="assistant"] .markdown h5',
+    '[data-message-author-role="assistant"] .markdown h6',
+    '[data-message-author-role="assistant"] .markdown blockquote',
+    '[data-message-author-role="assistant"] .markdown pre',
     '[data-message-author-role="assistant"] .markdown td',
     '[data-message-author-role="assistant"] .markdown th'
   ].join(",\n") + " {\n  unicode-bidi: plaintext !important;\n  text-align: start !important;\n}";
